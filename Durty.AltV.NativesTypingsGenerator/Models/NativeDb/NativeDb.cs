@@ -3,20 +3,10 @@ using Newtonsoft.Json;
 
 namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
 {
-    //public class NativeDbTest
-    //{
-    //    [JsonProperty]
-    //    public Dictionary<string, NativeDbTestGroup> Groups { get; set; }
-    //}
-
-    //public class NativeDbTestGroup
-    //{
-    //    [JsonProperty]
-    //    public Dictionary<string, Native> Natives { get; set; }
-    //}
-
     public class NativeDb
     {
+        public string VersionHash { get; set; }
+
         [JsonProperty("SYSTEM")]
         public Dictionary<string, Native> System { get; set; }
 

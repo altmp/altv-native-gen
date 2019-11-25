@@ -36,7 +36,7 @@ namespace Durty.AltV.NativesTypingsGenerator
             return typeDefFileContent;
         }
 
-        public void AddFunctionsFromNativeDb(NativeDb nativeDb)
+        public void AddFunctionsFromNativeDb(Models.NativeDb.NativeDb nativeDb)
         {
             TypeDefModule nativesModule = TypingDefinition.Modules.First(m => m.Name == "natives");
 

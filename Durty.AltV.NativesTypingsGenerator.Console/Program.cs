@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Net;
-using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
-using Newtonsoft.Json;
+using Durty.AltV.NativesTypingsGenerator.NativeDb;
 
 namespace Durty.AltV.NativesTypingsGenerator.Console
 {
@@ -18,13 +16,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
         static void Main(string[] args)
         {
             System.Console.WriteLine("Downloading latest natives from AltV...");
-            NativeDb nativeDb;
-            using (WebClient webClient = new WebClient())
-            {
-                string nativesJson = webClient.DownloadString(AltVNativeDbJsonSourceUrl);
-                System.Console.WriteLine($"Done. Size = {nativesJson.Length}");
-                nativeDb = JsonConvert.DeserializeObject<NativeDb>(nativesJson);
-            }
+            NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
+            Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
 
             TypeDefFileFromNativeDbGenerator typeDefGenerator = new TypeDefFileFromNativeDbGenerator(new List<TypeDefInterface>()
             {
