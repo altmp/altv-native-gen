@@ -51,7 +51,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
         {
             return nativeType switch
             {
-                NativeType.Any => "any",
+                NativeType.Any => "number",
                 NativeType.Boolean => "boolean",
                 NativeType.Float => "number",
                 NativeType.Int => "number",
@@ -71,6 +71,17 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.Blip => "number",
                 NativeType.Pickup => "number",
                 NativeType.Player => "number",
+                NativeType.CarGenerator => "number",
+                NativeType.Group => "number",
+                NativeType.Train => "number",
+                NativeType.Weapon => "number",
+                NativeType.Texture => "number",
+                NativeType.TextureDict => "number",
+                NativeType.CoverPoint => "number",
+                NativeType.Camera => "number",
+                NativeType.TaskSequence => "number",
+                NativeType.ColourIndex => "number",
+                NativeType.Sphere => "number",
                 _ => throw new ArgumentOutOfRangeException(nameof(nativeType), nativeType, null)
             };
         }

@@ -23,6 +23,17 @@
         Vehicle,
         Void,
         VoidAny,
-        VoidVector3Hash
+        VoidVector3Hash,
+        CarGenerator,
+        Group,
+        Train,
+        Weapon,
+        Texture,
+        TextureDict,
+        CoverPoint,
+        Camera,
+        TaskSequence,
+        ColourIndex,
+        Sphere,
     };
 }
