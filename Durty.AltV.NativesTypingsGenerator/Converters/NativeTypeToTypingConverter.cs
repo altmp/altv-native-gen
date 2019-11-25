@@ -58,19 +58,19 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.String => "string",
                 NativeType.Vector3 => "Vector3",
                 NativeType.Void => "void",
-                NativeType.ScrHandle => "intPtr",
-                NativeType.MemoryBuffer => "intPtr",
-                NativeType.Interior => "intPtr", //Not sure about this
-                NativeType.Object => "intPtr", //Not sure about this
-                NativeType.Hash => "string", //Not sure about this
-                NativeType.Entity => "number", //handle / script id
-                NativeType.Ped => "number", //handle / script id
-                NativeType.Vehicle => "number", //handle / script id
-                NativeType.Cam => "number", //handle / script id
-                NativeType.FireId => "number", //handle / script id
-                NativeType.Blip => "number", //handle / script id
-                NativeType.Pickup => "number", //handle / script id
-                NativeType.Player => "number", //handle / script id
+                NativeType.ScrHandle => "number",
+                NativeType.MemoryBuffer => "MemoryBuffer",
+                NativeType.Interior => "number",
+                NativeType.Object => "number",
+                NativeType.Hash => "number",
+                NativeType.Entity => "number",
+                NativeType.Ped => "number",
+                NativeType.Vehicle => "number",
+                NativeType.Cam => "number",
+                NativeType.FireId => "number",
+                NativeType.Blip => "number",
+                NativeType.Pickup => "number",
+                NativeType.Player => "number",
                 _ => throw new ArgumentOutOfRangeException(nameof(nativeType), nativeType, null)
             };
         }
