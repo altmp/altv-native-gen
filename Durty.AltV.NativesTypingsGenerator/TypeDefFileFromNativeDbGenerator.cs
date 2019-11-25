@@ -1,81 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Durty.AltV.NativesTypingsGenerator.Converters;
-using Durty.AltV.NativesTypingsGenerator.Models;
 using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
-using Newtonsoft.Json;
 
 namespace Durty.AltV.NativesTypingsGenerator
 {
-    class Program
+    public class TypeDefFileFromNativeDbGenerator
     {
-        private const string AltVNativeDbJsonSourceUrl = "https://natives.altv.mp/natives";
+        public TypeDefFile TypingDefinition { get; set; }
+        private readonly TypeDefFileGenerator _defFileGenerator;
 
-        static void Main(string[] args)
+        public TypeDefFileFromNativeDbGenerator(List<TypeDefInterface> interfaces, List<TypeDefType> types, string nativesModuleName)
         {
-            Console.WriteLine("Downloading latest natives from AltV...");
-            NativeDb nativeDb;
-            using (WebClient webClient = new WebClient())
+            TypingDefinition = new TypeDefFile()
             {
-                string nativesJson = webClient.DownloadString(AltVNativeDbJsonSourceUrl);
-                Console.WriteLine($"Done. Size = {nativesJson.Length}");
-                nativeDb = JsonConvert.DeserializeObject<NativeDb>(nativesJson);
-            }
-
-            TypeDefFile nativesTypeDefFile = new TypeDefFile()
-            {
-                Interfaces = new List<TypeDefInterface>()
-                {
-                    new TypeDefInterface()
-                    {
-                        Name = "Vector3",
-                        Properties = new List<TypeDefInterfaceProperty>()
-                        {
-                            new TypeDefInterfaceProperty()
-                            {
-                                Name = "x",
-                                Type = "number"
-                            },
-                            new TypeDefInterfaceProperty()
-                            {
-                                Name = "y",
-                                Type = "number"
-                            },
-                            new TypeDefInterfaceProperty()
-                            {
-                                Name = "z",
-                                Type = "number"
-                            }
-                        }
-                    }
-                },
-                Types = new List<TypeDefType>()
-                {
-                    new TypeDefType()
-                    {
-                        Name = "MemoryBuffer",
-                        TargetTypeName = "object"
-                    },
-                    new TypeDefType()
-                    {
-                        Name = "vectorPtr",
-                        TargetTypeName = "Vector3"
-                    }
-                },
+                Interfaces = interfaces,
+                Types = types,
                 Modules = new List<TypeDefModule>()
                 {
                     new TypeDefModule()
                     {
-                        Name = "natives",
+                        Name = nativesModuleName,
                         Functions = new List<TypeDefFunction>()
                     }
                 }
             };
 
-            TypeDefModule nativesModule = nativesTypeDefFile.Modules.First(m => m.Name == "natives");
+            _defFileGenerator = new TypeDefFileGenerator(TypingDefinition);
+        }
+
+        public string GetTypingFile()
+        {
+            string typeDefFileContent = _defFileGenerator.Generate();
+            return typeDefFileContent;
+        }
+
+        public void AddFunctionsFromNativeDb(NativeDb nativeDb)
+        {
+            TypeDefModule nativesModule = TypingDefinition.Modules.First(m => m.Name == "natives");
 
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Graphics));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.System));
@@ -121,25 +84,16 @@ namespace Durty.AltV.NativesTypingsGenerator
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Water));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Weapon));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Zone));
-            
-            TypeDefFileWriter typeDefFileWriter = new TypeDefFileWriter(nativesTypeDefFile);
-            typeDefFileWriter.Write("H:\\Games\\AltV-beta\\natives.d.ts");
-
-            Console.WriteLine("Press any key to exit");
-            Console.ReadKey();
         }
 
-        public static List<TypeDefFunction> GetFunctionsFromNativeGroup(Dictionary<string, Native> nativeGroup)
+        private List<TypeDefFunction> GetFunctionsFromNativeGroup(Dictionary<string, Native> nativeGroup)
         {
-            Console.WriteLine($"Parsing {nativeGroup.Values.Count} natives from group...");
-
             NativeTypeToTypingConverter nativeTypeToTypingConverter = new NativeTypeToTypingConverter();
             NativeReturnTypeToTypingConverter nativeReturnTypeToTypingConverter = new NativeReturnTypeToTypingConverter();
 
             List<TypeDefFunction> functions = new List<TypeDefFunction>();
             foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty))
             {
-                Console.WriteLine($"Found AltV Native Name: {native.AltFunctionName}");
                 TypeDefFunction function = new TypeDefFunction()
                 {
                     Name = native.AltFunctionName,

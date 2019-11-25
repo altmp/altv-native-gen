@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
 namespace Durty.AltV.NativesTypingsGenerator
 {
-    public class TypeDefFileWriter
+    public class TypeDefFileGenerator
     {
         private readonly TypeDefFile _typeDefFile;
 
-        public TypeDefFileWriter(TypeDefFile typeDefFile)
+        public TypeDefFileGenerator(TypeDefFile typeDefFile)
         {
             _typeDefFile = typeDefFile;
         }
 
-        public void Write(string filePath)
+        public string Generate()
         {
             string fileContent = _typeDefFile.Interfaces.Aggregate("", (current, typeDefInterface) => current + typeDefInterface + "\n");
             fileContent += "\n";
@@ -29,7 +25,8 @@ namespace Durty.AltV.NativesTypingsGenerator
                 fileContent += typeDefModule.ToString();
                 fileContent += "\n";
             }
-            File.WriteAllText(filePath, fileContent);
+
+            return fileContent;
         }
     }
 }
