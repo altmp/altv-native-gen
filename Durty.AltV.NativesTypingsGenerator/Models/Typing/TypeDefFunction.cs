@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Durty.AltV.NativesTypingsGenerator.Models.Typing
 {
+    [DebuggerDisplay("{Name}(): {ReturnType};")]
     public class TypeDefFunction
     {
         public string Name { get; set; }
