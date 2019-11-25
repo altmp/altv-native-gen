@@ -4,7 +4,7 @@ using Durty.AltV.NativesTypingsGenerator.Converters;
 using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
-namespace Durty.AltV.NativesTypingsGenerator
+namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 {
     public class TypeDefFileFromNativeDbGenerator
     {

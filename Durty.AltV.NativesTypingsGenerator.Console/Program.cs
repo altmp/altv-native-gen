@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
+using Durty.AltV.NativesTypingsGenerator.TypingDef;
 
 namespace Durty.AltV.NativesTypingsGenerator.Console
 {
@@ -9,8 +10,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
         private const string AltVNativeDbJsonSourceUrl = "https://natives.altv.mp/natives";
 
         /* TODO
-         - Cache AltV NativeDB file, hash content 
-         - Generate header in type def with generation date & used AltV nativeDb timestamp
+         - Cache AltV NativeDB file, hash content ?
          - Create WebApp & Endpoint to get latest / up2date typings
         */
         static void Main(string[] args)
