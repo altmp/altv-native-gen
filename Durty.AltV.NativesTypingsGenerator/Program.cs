@@ -27,6 +27,54 @@ namespace Durty.AltV.NativesTypingsGenerator
 
             TypeDefFile nativesTypeDefFile = new TypeDefFile()
             {
+                Interfaces = new List<TypeDefInterface>()
+                {
+                    new TypeDefInterface()
+                    {
+                        Name = "Vector3",
+                        Properties = new List<TypeDefInterfaceProperty>()
+                        {
+                            new TypeDefInterfaceProperty()
+                            {
+                                Name = "x",
+                                Type = "number"
+                            },
+                            new TypeDefInterfaceProperty()
+                            {
+                                Name = "y",
+                                Type = "number"
+                            },
+                            new TypeDefInterfaceProperty()
+                            {
+                                Name = "z",
+                                Type = "number"
+                            }
+                        }
+                    }
+                },
+                Types = new List<TypeDefType>()
+                {
+                    new TypeDefType()
+                    {
+                        Name = "booleanPtr",
+                        TargetTypeName = "boolean"
+                    },
+                    new TypeDefType()
+                    {
+                        Name = "intPtr",
+                        TargetTypeName = "number"
+                    },
+                    new TypeDefType()
+                    {
+                        Name = "floatPtr",
+                        TargetTypeName = "number"
+                    },
+                    new TypeDefType()
+                    {
+                        Name = "vectorPtr",
+                        TargetTypeName = "Vector3"
+                    }
+                },
                 Functions = new List<TypeDefFunction>()
             };
 
@@ -75,6 +123,9 @@ namespace Durty.AltV.NativesTypingsGenerator
             nativesTypeDefFile.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Weapon));
             nativesTypeDefFile.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Zone));
             
+            TypeDefFileWriter typeDefFileWriter = new TypeDefFileWriter(nativesTypeDefFile);
+            typeDefFileWriter.Write("H:\\Games\\AltV-beta\\natives.d.ts");
+
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
         }
