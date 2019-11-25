@@ -56,18 +56,8 @@ namespace Durty.AltV.NativesTypingsGenerator
                 {
                     new TypeDefType()
                     {
-                        Name = "booleanPtr",
-                        TargetTypeName = "boolean"
-                    },
-                    new TypeDefType()
-                    {
-                        Name = "intPtr",
-                        TargetTypeName = "number"
-                    },
-                    new TypeDefType()
-                    {
-                        Name = "floatPtr",
-                        TargetTypeName = "number"
+                        Name = "MemoryBuffer",
+                        TargetTypeName = "object"
                     },
                     new TypeDefType()
                     {
