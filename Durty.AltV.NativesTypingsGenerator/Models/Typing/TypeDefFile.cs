@@ -8,6 +8,6 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.Typing
 
         public List<TypeDefType> Types { get; set; }
 
-        public List<TypeDefFunction> Functions { get; set; }
+        public List<TypeDefModule> Modules { get; set; }
     }
 }

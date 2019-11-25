@@ -24,9 +24,11 @@ namespace Durty.AltV.NativesTypingsGenerator
             fileContent += _typeDefFile.Types.Aggregate("", (current, typeDefType) => current + typeDefType + "\n");
             fileContent += "\n";
 
-            fileContent += "declare module \"natives\" {\n";
-            fileContent = _typeDefFile.Functions.Aggregate(fileContent, (current, typeDefFunction) => current + $"	{typeDefFunction}\n");
-            fileContent += "}";
+            foreach (TypeDefModule typeDefModule in _typeDefFile.Modules)
+            {
+                fileContent += typeDefModule.ToString();
+                fileContent += "\n";
+            }
             File.WriteAllText(filePath, fileContent);
         }
     }
