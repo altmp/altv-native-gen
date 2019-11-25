@@ -20,7 +20,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
 
         [JsonProperty("build")]
         [JsonConverter(typeof(ParseStringConverter))]
-        public long Build { get; set; }
+        public long BuildNativeWasFound { get; set; }
 
         [JsonProperty("results")]
         [JsonConverter(typeof(ParseNativeDbResultConverter))]
