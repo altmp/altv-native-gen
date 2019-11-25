@@ -1,11 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.TypingDef;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-namespace Durty.AltV.NativesTypingsGenerator.Console
+namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
 {
-    class Program
+    [ApiController]
+    [Route("[controller]")]
+    public class NativesTypingController 
+        : ControllerBase
     {
         private const string AltVNativeDbJsonSourceUrl = "https://natives.altv.mp/natives";
         private static readonly List<TypeDefInterface> Interfaces = new List<TypeDefInterface>()
@@ -33,7 +39,6 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 }
             }
         };
-
         private static readonly List<TypeDefType> Types = new List<TypeDefType>()
         {
             new TypeDefType()
@@ -48,23 +53,47 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             }
         };
 
-        /* TODO
-         - Cache AltV NativeDB file, hash content ?
-        */
+        private readonly ILogger<NativesTypingController> _logger;
+        private readonly NativeDbDownloader _nativeDbDownloader;
 
-        static void Main(string[] args)
+        public NativesTypingController(ILogger<NativesTypingController> logger)
         {
-            System.Console.WriteLine("Downloading latest natives from AltV...");
-            NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
-            Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
+            _logger = logger;
+            _nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
+        }
+
+        [HttpGet]
+        public IActionResult Get([FromQuery] string branch = "beta")
+        {
+            if (branch.ToLower() != "beta")
+            {
+                return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
+            }
+            Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
 
             TypeDefFileFromNativeDbGenerator typeDefGenerator = new TypeDefFileFromNativeDbGenerator(Interfaces, Types, "natives");
 
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             string typingFileContent = typeDefGenerator.GetTypingFile();
+            Stream stream = GenerateStreamFromString(typingFileContent);
 
-            System.Console.WriteLine("Press any key to exit");
-            System.Console.ReadKey();
+            if (stream == null)
+                return NotFound();
+
+            return new FileStreamResult(stream, "application/json")
+            {
+                FileDownloadName = "natives.d.ts"
+            };
+        }
+
+        private Stream GenerateStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
     }
 }
