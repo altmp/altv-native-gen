@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.TypingDef;
@@ -13,7 +15,6 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
     public class NativesTypingController 
         : ControllerBase
     {
-        private const string AltVNativeDbJsonSourceUrl = "https://natives.altv.mp/natives";
         private static readonly List<TypeDefInterface> Interfaces = new List<TypeDefInterface>()
         {
             new TypeDefInterface()
@@ -55,11 +56,52 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
 
         private readonly ILogger<NativesTypingController> _logger;
         private readonly NativeDbDownloader _nativeDbDownloader;
+        private readonly NativeDbCacheService _nativeDbCacheService;
 
-        public NativesTypingController(ILogger<NativesTypingController> logger)
+        public NativesTypingController(
+            ILogger<NativesTypingController> logger, 
+            NativeDbDownloader nativeDbDownloader, 
+            NativeDbCacheService nativeDbCacheService)
         {
             _logger = logger;
-            _nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
+            _nativeDbDownloader = nativeDbDownloader;
+            _nativeDbCacheService = nativeDbCacheService;
+        }
+
+        [HttpGet("cache/all")]
+        public IActionResult GetCache()
+        {
+            return Ok(_nativeDbCacheService.GetAll().Select(n => new
+            {
+                Timestamp = n.Key.ToShortDateString() + " " + n.Key.ToShortTimeString(),
+                NativeDbVersionHash = n.Value.VersionHash
+            }));
+        }
+
+        [HttpGet("cache/triggerrefresh")]
+        public IActionResult RefreshCache()
+        {
+            _nativeDbCacheService.RefreshCache();
+            return Ok();
+        }
+
+        [HttpGet("latest")]
+        public IActionResult GetLatest([FromQuery] string branch = "beta")
+        {
+            if (branch.ToLower() != "beta")
+            {
+                return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
+            }
+            Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
+            Stream stream = GetNativeTypeDefContent(nativeDb);
+            
+            if (stream == null)
+                return NotFound();
+
+            return new FileStreamResult(stream, "application/json")
+            {
+                FileDownloadName = "natives.d.ts"
+            };
         }
 
         [HttpGet]
@@ -69,13 +111,8 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
             {
                 return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
             }
-            Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
-
-            TypeDefFileFromNativeDbGenerator typeDefGenerator = new TypeDefFileFromNativeDbGenerator(Interfaces, Types, "natives");
-
-            typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
-            string typingFileContent = typeDefGenerator.GetTypingFile();
-            Stream stream = GenerateStreamFromString(typingFileContent);
+            Models.NativeDb.NativeDb nativeDb = _nativeDbCacheService.GetLatest();
+            Stream stream = GetNativeTypeDefContent(nativeDb);
 
             if (stream == null)
                 return NotFound();
@@ -84,6 +121,16 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
             {
                 FileDownloadName = "natives.d.ts"
             };
+        }
+
+        private Stream GetNativeTypeDefContent(Models.NativeDb.NativeDb nativeDb)
+        {
+            TypeDefFileFromNativeDbGenerator typeDefGenerator = new TypeDefFileFromNativeDbGenerator(Interfaces, Types, "natives");
+
+            typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
+            string typingFileContent = typeDefGenerator.GetTypingFile();
+            Stream stream = GenerateStreamFromString(typingFileContent);
+            return stream;
         }
 
         private Stream GenerateStreamFromString(string s)

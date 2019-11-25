@@ -1,20 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Durty.AltV.NativesTypingsGenerator.WebApi
 {
     public class Startup
     {
+        private const string AltVNativeDbJsonSourceUrl = "https://natives.altv.mp/natives";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,6 +23,9 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddSingleton(provider => new NativeDbDownloader(AltVNativeDbJsonSourceUrl));
+            services.AddSingleton(provider => new NativeDbCacheService(provider.GetService<NativeDbDownloader>(), TimeSpan.FromHours(1)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
