@@ -3,55 +3,76 @@ using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 
 namespace Durty.AltV.NativesTypingsGenerator.Converters
 {
-    public class NativeParamTypeToTypingConverter
+    public class NativeTypeToTypingConverter
     {
-        public string Convert(Native native, NativeParamType nativeParamType)
+        /* see mapping js func by Tuxick
+         function getJSType(type) {
+           return type
+           .replace(/int\s*\* /, 'number')
+           .replace(/BOOL\s*\* /, 'boolean')
+           .replace('Vector3', 'Vector3')
+           .replace(/const char\s*\* /, 'string')
+           .replace(/char\s*\* /, 'string')
+           .replace(/float\s*\* /, 'number')
+           .replace(/float/, 'number')
+           .replace(/int/, 'number')
+           .replace(/(Player|Hash|Any|Entity|FireId|Ped|Vehicle|Cam|CarGenerator|Group|Train|Pickup|Object|Weapon|Interior|Blip|ScrHandle)\s*\* /, 'number')
+           .replace(/Vector3\s*\* /, 'vectorPtr')
+           .replace('Entity', 'number')
+           .replace('Hash', 'number')
+           .replace('Player', 'number')
+           .replace('FireId', 'number')
+           .replace('Ped', 'number')
+           .replace('Vehicle', 'number')
+           .replace('Cam', 'number')
+           .replace('CarGenerator', 'number')
+           .replace('Group', 'number')
+           .replace('Train', 'number')
+           .replace('Pickup', 'number')
+           .replace('Object', 'number')
+           .replace('Weapon', 'number')
+           .replace('Interior', 'number')
+           .replace('Blip', 'number')
+           .replace('Texture', 'number')
+           .replace('TextureDict', 'number')
+           .replace('CoverPoint', 'number')
+           .replace('Camera', 'number')
+           .replace('TaskSequence', 'number')
+           .replace('ColourIndex', 'number')
+           .replace('Sphere', 'number')
+           .replace('ScrHandle', 'number')
+           .replace('Any', 'number')
+           .replace('BOOL', 'boolean')
+           .replace('void*', 'MemoryBuffer');
+           }
+         */
+
+        public string Convert(Native native, NativeType nativeType)
         {
-            switch (nativeParamType)
+            return nativeType switch
             {
-                case NativeParamType.Any:
-                    return "any";
-                case NativeParamType.Boolean:
-                    return "boolean";
-                case NativeParamType.Float:
-                    return "number";
-                case NativeParamType.Int:
-                    return "number";
-                case NativeParamType.String:
-                    return "string";
-                case NativeParamType.Vector3:
-                    return "Vector3";
-                case NativeParamType.Void:
-                    return "void";
-                case NativeParamType.ScrHandle:
-                    return "intPtr";
-                case NativeParamType.MemoryBuffer:
-                    return "intPtr";
-                case NativeParamType.Interior:
-                    return "intPtr"; //Not sure about this
-                case NativeParamType.Object:
-                    return "intPtr"; //Not sure about this
-                case NativeParamType.Hash:
-                    return "string"; //Not sure about this
-                case NativeParamType.Entity:
-                    return "number"; //handle / script id
-                case NativeParamType.Ped:
-                    return "number"; //handle / script id
-                case NativeParamType.Vehicle:
-                    return "number"; //handle / script id
-                case NativeParamType.Cam:
-                    return "number"; //handle / script id
-                case NativeParamType.FireId:
-                    return "number"; //handle / script id
-                case NativeParamType.Blip:
-                    return "number"; //handle / script id
-                case NativeParamType.Pickup:
-                    return "number"; //handle / script id
-                case NativeParamType.Player:
-                    return "number"; //handle / script id
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(nativeParamType), nativeParamType, null);
-            }
+                NativeType.Any => "any",
+                NativeType.Boolean => "boolean",
+                NativeType.Float => "number",
+                NativeType.Int => "number",
+                NativeType.String => "string",
+                NativeType.Vector3 => "Vector3",
+                NativeType.Void => "void",
+                NativeType.ScrHandle => "intPtr",
+                NativeType.MemoryBuffer => "intPtr",
+                NativeType.Interior => "intPtr", //Not sure about this
+                NativeType.Object => "intPtr", //Not sure about this
+                NativeType.Hash => "string", //Not sure about this
+                NativeType.Entity => "number", //handle / script id
+                NativeType.Ped => "number", //handle / script id
+                NativeType.Vehicle => "number", //handle / script id
+                NativeType.Cam => "number", //handle / script id
+                NativeType.FireId => "number", //handle / script id
+                NativeType.Blip => "number", //handle / script id
+                NativeType.Pickup => "number", //handle / script id
+                NativeType.Player => "number", //handle / script id
+                _ => throw new ArgumentOutOfRangeException(nameof(nativeType), nativeType, null)
+            };
         }
     }
 }

@@ -16,14 +16,15 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
         public string Comment { get; set; }
 
         [JsonProperty("params")]
-        public NativeParam[] Params { get; set; }
+        public NativeParam[] Parameters { get; set; }
 
         [JsonProperty("build")]
         [JsonConverter(typeof(ParseStringConverter))]
         public long Build { get; set; }
 
         [JsonProperty("results")]
-        public string Results { get; set; }
+        [JsonConverter(typeof(ParseNativeDbResultConverter))]
+        public List<NativeType> ResultTypes { get; set; }
 
         [JsonProperty("forceNetwork")]
         public bool ForceNetwork { get; set; }
@@ -32,7 +33,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
         public Dictionary<string, string> Hashes { get; set; }
 
         [JsonProperty("altName")]
-        public string AltName { get; set; }
+        public string AltFunctionName { get; set; }
 
         [JsonProperty("unused", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Unused { get; set; }

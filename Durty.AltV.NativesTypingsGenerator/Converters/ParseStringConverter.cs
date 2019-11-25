@@ -9,8 +9,10 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
 
         public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Null) return null;
-            var value = serializer.Deserialize<string>(reader);
+            if (reader.TokenType == JsonToken.Null) 
+                return null;
+            string value = serializer.Deserialize<string>(reader);
+
             if (long.TryParse(value, out var l))
             {
                 return l;
@@ -25,11 +27,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 serializer.Serialize(writer, null);
                 return;
             }
-            var value = (long)untypedValue;
+            long value = (long)untypedValue;
             serializer.Serialize(writer, value.ToString());
-            return;
         }
-
-        public static readonly ParseStringConverter Singleton = new ParseStringConverter();
     }
 }

@@ -134,21 +134,24 @@ namespace Durty.AltV.NativesTypingsGenerator
         {
             Console.WriteLine($"Parsing {nativeGroup.Values.Count} natives from group...");
 
+            NativeTypeToTypingConverter nativeTypeToTypingConverter = new NativeTypeToTypingConverter();
+            NativeReturnTypeToTypingConverter nativeReturnTypeToTypingConverter = new NativeReturnTypeToTypingConverter();
+
             var functions = new List<TypeDefFunction>();
             foreach (Native native in nativeGroup.Values)
             {
-                if (native.AltName != string.Empty)
+                if (native.AltFunctionName != string.Empty)
                 {
-                    Console.WriteLine($"Found AltV Native Name: {native.AltName}");
+                    Console.WriteLine($"Found AltV Native Name: {native.AltFunctionName}");
                     TypeDefFunction function = new TypeDefFunction()
                     {
-                        Name = native.AltName,
-                        Parameters = native.Params.Select(p => new TypeDefFunctionParameter()
+                        Name = native.AltFunctionName,
+                        Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
                         {
                             Name = p.Name,
-                            Type = new NativeParamTypeToTypingConverter().Convert(native, p.NativeParamType)
+                            Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType)
                         }).ToList(),
-                        ReturnType = native.Results
+                        ReturnType = nativeReturnTypeToTypingConverter.Convert(native, native.ResultTypes)
                     };
                     functions.Add(function);
                 }
