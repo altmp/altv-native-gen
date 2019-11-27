@@ -54,7 +54,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
             Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
 
-            TypDefFromNativeDbGenerator typeDefGenerator = new TypDefFromNativeDbGenerator(Interfaces, Types, "natives");
+            TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 

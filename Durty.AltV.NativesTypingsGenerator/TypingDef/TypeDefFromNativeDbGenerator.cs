@@ -6,11 +6,11 @@ using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
 namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 {
-    public class TypDefFromNativeDbGenerator
+    public class TypeDefFromNativeDbGenerator
     {
         private readonly TypeDef _typeDefinition;
 
-        public TypDefFromNativeDbGenerator(List<TypeDefInterface> interfaces, List<TypeDefType> types, string nativesModuleName)
+        public TypeDefFromNativeDbGenerator(List<TypeDefInterface> interfaces, List<TypeDefType> types, string nativesModuleName)
         {
             _typeDefinition = new TypeDef()
             {
@@ -97,6 +97,10 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     foundReturnTypeDescription = nativeCommentLines.FirstOrDefault(l => l.ToLower().Contains("returns"));
                     nativeCommentLines.Remove(foundReturnTypeDescription);
                 }
+
+                //Remove blank lines
+                nativeCommentLines.RemoveAll(l => l.Trim().Length == 0);
+
                 if (nativeCommentLines.Count > 10) //If native comment is really huge, cut & add NativeDB reference link to read
                 {
                     nativeCommentLines = nativeCommentLines.Take(9).ToList();

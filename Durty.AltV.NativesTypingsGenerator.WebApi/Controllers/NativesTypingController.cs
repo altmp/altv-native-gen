@@ -125,7 +125,7 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
 
         private Stream GetNativeTypeDefContent(Models.NativeDb.NativeDb nativeDb)
         {
-            TypDefFromNativeDbGenerator typeDefGenerator = new TypDefFromNativeDbGenerator(Interfaces, Types, "natives");
+            TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
 
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             string typingFileContent = typeDefGenerator.GetTypingDefinition();
