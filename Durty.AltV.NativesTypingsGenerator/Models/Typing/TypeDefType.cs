@@ -8,10 +8,5 @@
         public string Name { get; set; }
 
         public string TargetTypeName { get; set; }
-
-        public override string ToString()
-        {
-            return $"type {Name} = {TargetTypeName};";
-        }
     }
 }
