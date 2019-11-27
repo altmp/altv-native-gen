@@ -96,12 +96,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 TypeDefFunction function = new TypeDefFunction()
                 {
                     Name = native.AltFunctionName,
+                    Description = native.Comment,
                     Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
                     {
                         Name = p.Name,
                         Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType)
                     }).ToList(),
-                    ReturnType = nativeReturnTypeToTypingConverter.Convert(native, native.ResultTypes)
+                    ReturnType = new TypeDefFunctionReturnType()
+                    {
+                        Name = nativeReturnTypeToTypingConverter.Convert(native, native.ResultTypes)
+                    }
                 };
                 functions.Add(function);
             }

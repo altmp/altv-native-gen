@@ -13,7 +13,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.Typing
         {
             string result = "";
             result += $"declare module \"{Name}\" {{\n";
-            result = Functions.Aggregate(result, (current, typeDefFunction) => current + $"	{typeDefFunction}\n");
+            result = Functions.Aggregate(result, (current, typeDefFunction) => current + $"{typeDefFunction}\n");
             result += "}";
             return result;
         }
