@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Durty.AltV.NativesTypingsGenerator.NativeDb;
 
-namespace Durty.AltV.NativesTypingsGenerator.NativeDb
+namespace Durty.AltV.NativesTypingsGenerator.WebApi.Services
 {
     public class NativeDbCacheService
     {

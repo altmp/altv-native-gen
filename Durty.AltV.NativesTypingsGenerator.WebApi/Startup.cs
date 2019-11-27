@@ -1,5 +1,6 @@
 using System;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
+using Durty.AltV.NativesTypingsGenerator.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

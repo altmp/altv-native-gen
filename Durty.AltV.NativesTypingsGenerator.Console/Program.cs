@@ -59,7 +59,10 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 
             TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition);
-            string typingFileContent = typeDefFileGenerator.Generate();
+            string typingFileContent = typeDefFileGenerator.Generate(true, new List<string>()
+            {
+                $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
+            });
 
             System.Console.WriteLine("Press any key to exit");
             System.Console.ReadKey();

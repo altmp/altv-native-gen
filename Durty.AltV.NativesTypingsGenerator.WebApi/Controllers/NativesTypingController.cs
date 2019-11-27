@@ -5,6 +5,7 @@ using System.Linq;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.TypingDef;
+using Durty.AltV.NativesTypingsGenerator.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -86,14 +87,14 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
         }
 
         [HttpGet("latest")]
-        public IActionResult GetLatest([FromQuery] string branch = "beta")
+        public IActionResult GetLatest([FromQuery] string branch = "beta", [FromQuery] bool generateDocumentation = true)
         {
             if (branch.ToLower() != "beta")
             {
                 return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
             }
             Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
-            Stream stream = GetNativeTypeDefContent(nativeDb);
+            Stream stream = GetNativesTypeDefContent(nativeDb, generateDocumentation);
             
             if (stream == null)
                 return NotFound();
@@ -105,14 +106,14 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] string branch = "beta")
+        public IActionResult Get([FromQuery] string branch = "beta", [FromQuery] bool generateDocumentation = true)
         {
             if (branch.ToLower() != "beta")
             {
                 return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
             }
             Models.NativeDb.NativeDb nativeDb = _nativeDbCacheService.GetLatest();
-            Stream stream = GetNativeTypeDefContent(nativeDb);
+            Stream stream = GetNativesTypeDefContent(nativeDb, generateDocumentation);
 
             if (stream == null)
                 return NotFound();
@@ -123,20 +124,25 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
             };
         }
 
-        private Stream GetNativeTypeDefContent(Models.NativeDb.NativeDb nativeDb)
+        private Stream GetNativesTypeDefContent(Models.NativeDb.NativeDb nativeDb, bool generateDocumentation)
         {
             TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
-
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
-            string typingFileContent = typeDefGenerator.GetTypingDefinition();
+
+            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typeDefGenerator.GetTypingDefinition(), generateDocumentation);
+            string typingFileContent = typeDefFileGenerator.Generate(true, new List<string>()
+            {
+                $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
+            });
+
             Stream stream = GenerateStreamFromString(typingFileContent);
             return stream;
         }
 
         private Stream GenerateStreamFromString(string s)
         {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
             writer.Write(s);
             writer.Flush();
             stream.Position = 0;
