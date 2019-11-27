@@ -10,10 +10,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 {
     public class TypeDefFromNativeDbGenerator
     {
+        private readonly bool _tryResolveDocs;
         private readonly TypeDef _typeDefinition;
 
-        public TypeDefFromNativeDbGenerator(List<TypeDefInterface> interfaces, List<TypeDefType> types, string nativesModuleName)
+        public TypeDefFromNativeDbGenerator(
+            List<TypeDefInterface> interfaces, 
+            List<TypeDefType> types, 
+            string nativesModuleName,
+            bool tryResolveDocs = true)
         {
+            _tryResolveDocs = tryResolveDocs;
             _typeDefinition = new TypeDef()
             {
                 Interfaces = interfaces,
@@ -93,11 +99,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             {
                 //Prepare for docs
                 List<string> nativeCommentLines = native.Comment.Split("\n").ToList();
+
+                //Try resolving return type description
                 string foundReturnTypeDescription = string.Empty;
-                if (nativeCommentLines.Any(l => l.ToLower().Contains("returns")))
+                if (_tryResolveDocs)
                 {
-                    foundReturnTypeDescription = nativeCommentLines.FirstOrDefault(l => l.ToLower().Contains("returns"));
-                    nativeCommentLines.Remove(foundReturnTypeDescription);
+                    if (nativeCommentLines.Any(l => l.ToLower().Contains("returns")))
+                    {
+                        foundReturnTypeDescription = nativeCommentLines.FirstOrDefault(l => l.ToLower().Contains("returns"));
+                        nativeCommentLines.Remove(foundReturnTypeDescription);
+                    }
                 }
 
                 //Remove blank lines
@@ -125,7 +136,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     {
                         Name = p.Name,
                         Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType),
-                        Description = GetPossibleParameterDescriptionFromComment(p.Name, nativeCommentLines)
+                        Description = _tryResolveDocs ? GetPossibleParameterDescriptionFromComment(p.Name, nativeCommentLines) : string.Empty
                     }).ToList(),
                     ReturnType = new TypeDefFunctionReturnType()
                     {
