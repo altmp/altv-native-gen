@@ -141,6 +141,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
         private string GetPossibleParameterDescriptionFromComment(string parameterName, List<string> commentLines)
         {
+            //TODO: in the future use Levenshtein Distance algorythm for better matching https://stackoverflow.com/a/2344347
             string bestDescriptionMatch = string.Empty;
             foreach (string commentLine in commentLines)
             {

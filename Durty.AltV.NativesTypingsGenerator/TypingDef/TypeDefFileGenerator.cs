@@ -102,7 +102,6 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 }
             }
             //Add @remarks in the future?
-            //TODO: Add intelligent parameter description resolving (pattern matchin paraname - description)
             foreach (var parameter in typeDefFunction.Parameters)
             {
                 if (!string.IsNullOrEmpty(parameter.Description))
