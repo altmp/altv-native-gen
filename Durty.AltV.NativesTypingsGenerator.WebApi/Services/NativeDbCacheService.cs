@@ -1,34 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
+using Durty.AltV.NativesTypingsGenerator.WebApi.Repositories;
 
 namespace Durty.AltV.NativesTypingsGenerator.WebApi.Services
 {
     public class NativeDbCacheService
     {
         private readonly NativeDbDownloader _nativeDbDownloader;
-        private readonly Dictionary<DateTime, Models.NativeDb.NativeDb> _cachedNativeDbs;
+        private readonly Dictionary<DateTime, NativesTypingsGenerator.Models.NativeDb.NativeDb> _cachedNativeDbs;
         private readonly TimeSpan _refreshTimeSpan;
+        private readonly CachedNativeTypingDefRepository _cachedNativeTypingDefRepository;
 
-        private Models.NativeDb.NativeDb _latestNativeDb = new Models.NativeDb.NativeDb()
+        private NativesTypingsGenerator.Models.NativeDb.NativeDb _latestNativeDb = new NativesTypingsGenerator.Models.NativeDb.NativeDb()
         {
             VersionHash = "0"
         };
         private DateTime _lastCacheDateTime;
 
-        public NativeDbCacheService(NativeDbDownloader nativeDbDownloader, TimeSpan cacheRefreshTimeSpan)
+        public NativeDbCacheService(
+            NativeDbDownloader nativeDbDownloader, 
+            TimeSpan cacheRefreshTimeSpan,
+            CachedNativeTypingDefRepository cachedNativeTypingDefRepository)
         {
-            _cachedNativeDbs = new Dictionary<DateTime, Models.NativeDb.NativeDb>();
+            _cachedNativeDbs = new Dictionary<DateTime, NativesTypingsGenerator.Models.NativeDb.NativeDb>();
             _nativeDbDownloader = nativeDbDownloader;
             _refreshTimeSpan = cacheRefreshTimeSpan;
+            _cachedNativeTypingDefRepository = cachedNativeTypingDefRepository;
         }
 
-        public Dictionary<DateTime, Models.NativeDb.NativeDb> GetAll()
+        public Dictionary<DateTime, NativesTypingsGenerator.Models.NativeDb.NativeDb> GetAll()
         {
             return _cachedNativeDbs;
         }
 
-        public Models.NativeDb.NativeDb GetLatest()
+        public NativesTypingsGenerator.Models.NativeDb.NativeDb GetLatest()
         {
             if (_lastCacheDateTime + _refreshTimeSpan < DateTime.Now)
             {
@@ -39,11 +45,10 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Services
 
         public void RefreshCache()
         {
-            Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
-            if (nativeDb.VersionHash == _latestNativeDb.VersionHash)
-            {
+            NativesTypingsGenerator.Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
+            if (nativeDb.VersionHash == _latestNativeDb.VersionHash) //Downloaded NativeDB has not changed
                 return;
-            }
+
             _latestNativeDb = nativeDb;
             _lastCacheDateTime = DateTime.Now;
             _cachedNativeDbs.Add(DateTime.Now, nativeDb);

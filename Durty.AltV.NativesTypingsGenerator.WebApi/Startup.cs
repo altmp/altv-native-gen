@@ -1,5 +1,7 @@
 using System;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
+using Durty.AltV.NativesTypingsGenerator.WebApi.Models;
+using Durty.AltV.NativesTypingsGenerator.WebApi.Repositories;
 using Durty.AltV.NativesTypingsGenerator.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,7 +28,9 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi
             services.AddControllers();
 
             services.AddSingleton(provider => new NativeDbDownloader(AltVNativeDbJsonSourceUrl));
-            services.AddSingleton(provider => new NativeDbCacheService(provider.GetService<NativeDbDownloader>(), TimeSpan.FromHours(1)));
+            services.AddSingleton<CachedNativeTypingDefRepository>();
+            services.AddSingleton<NativeTypingDefService>();
+            services.AddSingleton(provider => new NativeDbCacheService(provider.GetService<NativeDbDownloader>(), TimeSpan.FromHours(6), provider.GetService<CachedNativeTypingDefRepository>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

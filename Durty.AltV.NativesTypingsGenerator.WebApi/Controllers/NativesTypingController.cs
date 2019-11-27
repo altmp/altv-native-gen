@@ -5,6 +5,7 @@ using System.Linq;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.TypingDef;
+using Durty.AltV.NativesTypingsGenerator.WebApi.Repositories;
 using Durty.AltV.NativesTypingsGenerator.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -16,61 +17,25 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
     public class NativesTypingController 
         : ControllerBase
     {
-        private static readonly List<TypeDefInterface> Interfaces = new List<TypeDefInterface>()
-        {
-            new TypeDefInterface()
-            {
-                Name = "Vector3",
-                Properties = new List<TypeDefInterfaceProperty>()
-                {
-                    new TypeDefInterfaceProperty()
-                    {
-                        Name = "x",
-                        Type = "number"
-                    },
-                    new TypeDefInterfaceProperty()
-                    {
-                        Name = "y",
-                        Type = "number"
-                    },
-                    new TypeDefInterfaceProperty()
-                    {
-                        Name = "z",
-                        Type = "number"
-                    }
-                }
-            }
-        };
-        private static readonly List<TypeDefType> Types = new List<TypeDefType>()
-        {
-            new TypeDefType()
-            {
-                Name = "MemoryBuffer",
-                TargetTypeName = "object"
-            },
-            new TypeDefType()
-            {
-                Name = "vectorPtr",
-                TargetTypeName = "Vector3"
-            }
-        };
-
         private readonly ILogger<NativesTypingController> _logger;
-        private readonly NativeDbDownloader _nativeDbDownloader;
+        private readonly NativeTypingDefService _nativeTypingDefService;
         private readonly NativeDbCacheService _nativeDbCacheService;
+        private readonly CachedNativeTypingDefRepository _cachedNativeTypingDefRepository;
 
         public NativesTypingController(
-            ILogger<NativesTypingController> logger, 
-            NativeDbDownloader nativeDbDownloader, 
-            NativeDbCacheService nativeDbCacheService)
+            ILogger<NativesTypingController> logger,
+            NativeTypingDefService nativeTypingDefService,
+            NativeDbCacheService nativeDbCacheService,
+            CachedNativeTypingDefRepository cachedNativeTypingDefRepository)
         {
             _logger = logger;
-            _nativeDbDownloader = nativeDbDownloader;
+            _nativeTypingDefService = nativeTypingDefService;
             _nativeDbCacheService = nativeDbCacheService;
+            _cachedNativeTypingDefRepository = cachedNativeTypingDefRepository;
         }
 
-        [HttpGet("cache/all")]
-        public IActionResult GetCache()
+        [HttpGet("cache/nativedb/all")]
+        public IActionResult GetNativeDbCache()
         {
             return Ok(_nativeDbCacheService.GetAll().Select(n => new
             {
@@ -79,30 +44,31 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
             }));
         }
 
-        [HttpGet("cache/triggerrefresh")]
-        public IActionResult RefreshCache()
+        [HttpGet("cache/nativedb/triggerrefresh")]
+        public IActionResult RefreshNativeDbCache()
         {
             _nativeDbCacheService.RefreshCache();
             return Ok();
         }
 
-        [HttpGet("latest")]
-        public IActionResult GetLatest([FromQuery] string branch = "beta", [FromQuery] bool generateDocumentation = true)
+        [HttpGet("cache/nativetypingdef/all")]
+        public IActionResult GetNativeTypingDefCache()
         {
-            if (branch.ToLower() != "beta")
+            return Ok(_cachedNativeTypingDefRepository.GetAll().Select(n => new
             {
-                return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
-            }
-            Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
-            Stream stream = GetNativesTypeDefContent(nativeDb, generateDocumentation);
-            
-            if (stream == null)
-                return NotFound();
+                n.Branch,
+                n.ContainsDocumentation,
+                n.NativeDbVersionHash,
+                Timestamp = n.GenerationDateTime.ToShortDateString() + " " + n.GenerationDateTime.ToShortTimeString(),
+                n.AccessCount
+            }));
+        }
 
-            return new FileStreamResult(stream, "application/json")
-            {
-                FileDownloadName = "natives.d.ts"
-            };
+        [HttpGet("cache/nativetypingdef/triggerrefresh")]
+        public IActionResult RefreshNativeTypingDefCache()
+        {
+            _cachedNativeTypingDefRepository.Clear();
+            return Ok();
         }
 
         [HttpGet]
@@ -112,8 +78,9 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
             {
                 return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
             }
-            Models.NativeDb.NativeDb nativeDb = _nativeDbCacheService.GetLatest();
-            Stream stream = GetNativesTypeDefContent(nativeDb, generateDocumentation);
+
+            string typingFileContent = _nativeTypingDefService.GetLatestCachedTypingFile(branch, generateDocumentation);
+            Stream stream = GenerateStreamFromString(typingFileContent);
 
             if (stream == null)
                 return NotFound();
@@ -122,21 +89,6 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
             {
                 FileDownloadName = "natives.d.ts"
             };
-        }
-
-        private Stream GetNativesTypeDefContent(Models.NativeDb.NativeDb nativeDb, bool generateDocumentation)
-        {
-            TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
-            typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
-
-            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typeDefGenerator.GetTypingDefinition(), generateDocumentation);
-            string typingFileContent = typeDefFileGenerator.Generate(true, new List<string>()
-            {
-                $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
-            });
-
-            Stream stream = GenerateStreamFromString(typingFileContent);
-            return stream;
         }
 
         private Stream GenerateStreamFromString(string s)
