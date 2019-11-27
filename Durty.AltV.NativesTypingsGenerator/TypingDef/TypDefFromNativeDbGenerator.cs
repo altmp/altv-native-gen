@@ -89,10 +89,15 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             List<TypeDefFunction> functions = new List<TypeDefFunction>();
             foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty && native.Hashes != null && native.Hashes.Count != 0))
             {
+                string nativeComment = native.Comment;
+                if (nativeComment.Split("\n").Length > 10) //If native comment is really huge, add NativeDB reference because it will be cut in docs summary
+                {
+                    nativeComment = native.Comment + $"\nSee NativeDB for reference: http://natives.altv.mp/#/{native.Hashes.First().Value}";
+                }
                 TypeDefFunction function = new TypeDefFunction()
                 {
                     Name = native.AltFunctionName,
-                    Description = native.Comment,
+                    Description = nativeComment,
                     Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
                     {
                         Name = p.Name,

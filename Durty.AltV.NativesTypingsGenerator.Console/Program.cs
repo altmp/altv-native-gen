@@ -58,7 +58,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 
-            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, false);
+            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition);
             string typingFileContent = typeDefFileGenerator.Generate();
 
             System.Console.WriteLine("Press any key to exit");

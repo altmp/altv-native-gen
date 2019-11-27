@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
@@ -94,7 +95,18 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             if (!string.IsNullOrEmpty(typeDefFunction.Description))
             {
                 string[] descriptionLines = typeDefFunction.Description.Split("\n");
-                foreach (string descriptionLine in descriptionLines.Take(10)) //Docs summary can only show max 10 lines, will be cut afterwards anyway
+                List<string> descriptionLinesToDocument; 
+                if (descriptionLines.Length > 10) //Docs summary can only show max 10 lines, will be cut afterwards anyway
+                {
+                    descriptionLinesToDocument = descriptionLines.Take(9).ToList();
+                    descriptionLinesToDocument.Add(descriptionLines.Last()); //This one contains NativeDB reference link
+                }
+                else
+                {
+                    descriptionLinesToDocument = descriptionLines.ToList();
+                }
+
+                foreach (string descriptionLine in descriptionLinesToDocument)
                 {
                     string sanitizedDescriptionLine = descriptionLine.Replace("/*", string.Empty).Replace("*/", string.Empty);
                     result += $"\t* {sanitizedDescriptionLine}\n";
