@@ -94,25 +94,13 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             string result = $"\t/**\n";
             if (!string.IsNullOrEmpty(typeDefFunction.Description))
             {
-                string[] descriptionLines = typeDefFunction.Description.Split("\n");
-                List<string> descriptionLinesToDocument; 
-                if (descriptionLines.Length > 10) //Docs summary can only show max 10 lines, will be cut afterwards anyway
-                {
-                    descriptionLinesToDocument = descriptionLines.Take(9).ToList();
-                    descriptionLinesToDocument.Add(descriptionLines.Last()); //This one contains NativeDB reference link
-                }
-                else
-                {
-                    descriptionLinesToDocument = descriptionLines.ToList();
-                }
-
-                foreach (string descriptionLine in descriptionLinesToDocument)
+                List<string> descriptionLines = typeDefFunction.Description.Split("\n").ToList();
+                foreach (string descriptionLine in descriptionLines)
                 {
                     string sanitizedDescriptionLine = descriptionLine.Replace("/*", string.Empty).Replace("*/", string.Empty);
                     result += $"\t* {sanitizedDescriptionLine}\n";
                 }
             }
-            //TODO: add reference link (nativedb url)
             //Add @remarks in the future?
             //TODO: Add intelligent parameter description resolving (pattern matchin paraname - description)
             foreach (var parameter in typeDefFunction.Parameters)
@@ -124,7 +112,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             }
             if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description))
             {
-                result += $"\t* {typeDefFunction.ReturnType.Description}\n";
+                result += $"\t* @returns {typeDefFunction.ReturnType.Description}\n";
             }
             result += "\t*/\n";
             return result;

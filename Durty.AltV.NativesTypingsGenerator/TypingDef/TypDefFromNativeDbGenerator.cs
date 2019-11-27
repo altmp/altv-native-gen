@@ -89,15 +89,23 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             List<TypeDefFunction> functions = new List<TypeDefFunction>();
             foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty && native.Hashes != null && native.Hashes.Count != 0))
             {
-                string nativeComment = native.Comment;
-                if (nativeComment.Split("\n").Length > 10) //If native comment is really huge, add NativeDB reference because it will be cut in docs summary
+                //Prepare for docs
+                List<string> nativeCommentLines = native.Comment.Split("\n").ToList();
+                string foundReturnTypeDescription = string.Empty;
+                if (nativeCommentLines.Any(l => l.ToLower().Contains("returns")))
                 {
-                    nativeComment = native.Comment + $"\nSee NativeDB for reference: http://natives.altv.mp/#/{native.Hashes.First().Value}";
+                    foundReturnTypeDescription = nativeCommentLines.FirstOrDefault(l => l.ToLower().Contains("returns"));
+                    nativeCommentLines.Remove(foundReturnTypeDescription);
+                }
+                if (nativeCommentLines.Count > 10) //If native comment is really huge, cut & add NativeDB reference link to read
+                {
+                    nativeCommentLines = nativeCommentLines.Take(9).ToList();
+                    nativeCommentLines.Add($"See NativeDB for reference: http://natives.altv.mp/#/{native.Hashes.First().Value}");
                 }
                 TypeDefFunction function = new TypeDefFunction()
                 {
                     Name = native.AltFunctionName,
-                    Description = nativeComment,
+                    Description = string.Join("\n", nativeCommentLines),
                     Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
                     {
                         Name = p.Name,
@@ -105,7 +113,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     }).ToList(),
                     ReturnType = new TypeDefFunctionReturnType()
                     {
-                        Name = nativeReturnTypeToTypingConverter.Convert(native, native.ResultTypes)
+                        Name = nativeReturnTypeToTypingConverter.Convert(native, native.ResultTypes),
+                        Description = foundReturnTypeDescription
                     }
                 };
                 functions.Add(function);
