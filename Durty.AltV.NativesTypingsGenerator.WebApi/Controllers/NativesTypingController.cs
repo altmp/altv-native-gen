@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using Durty.AltV.NativesTypingsGenerator.Models.Typing;
-using Durty.AltV.NativesTypingsGenerator.NativeDb;
-using Durty.AltV.NativesTypingsGenerator.TypingDef;
 using Durty.AltV.NativesTypingsGenerator.WebApi.Repositories;
 using Durty.AltV.NativesTypingsGenerator.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -72,14 +67,14 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] string branch = "beta", [FromQuery] bool generateDocumentation = true)
+        public IActionResult Get([FromQuery] string branch = "beta", [FromQuery] bool documentation = true)
         {
             if (branch.ToLower() != "beta")
             {
                 return NotFound("Unsupported branch. (Only 'beta' branch is currently supported)");
             }
 
-            string typingFileContent = _nativeTypingDefService.GetLatestCachedTypingFile(branch, generateDocumentation);
+            string typingFileContent = _nativeTypingDefService.GetLatestCachedTypingFile(branch, documentation);
             Stream stream = GenerateStreamFromString(typingFileContent);
 
             if (stream == null)
