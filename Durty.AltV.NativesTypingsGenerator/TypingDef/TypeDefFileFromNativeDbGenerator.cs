@@ -55,7 +55,6 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Event));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Files));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Fire));
-            nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Graphics));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Hud));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Interior));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Itemset));
@@ -92,7 +91,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             NativeReturnTypeToTypingConverter nativeReturnTypeToTypingConverter = new NativeReturnTypeToTypingConverter();
 
             List<TypeDefFunction> functions = new List<TypeDefFunction>();
-            foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty))
+            foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty && native.Hashes != null && native.Hashes.Count != 0))
             {
                 TypeDefFunction function = new TypeDefFunction()
                 {

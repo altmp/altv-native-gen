@@ -48,10 +48,6 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             }
         };
 
-        /* TODO
-         - Cache AltV NativeDB file, hash content ?
-        */
-
         static void Main(string[] args)
         {
             System.Console.WriteLine("Downloading latest natives from AltV...");
