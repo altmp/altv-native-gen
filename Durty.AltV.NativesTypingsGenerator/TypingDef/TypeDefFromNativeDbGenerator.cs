@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Durty.AltV.NativesTypingsGenerator.Converters;
+using Durty.AltV.NativesTypingsGenerator.Extensions;
 using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
@@ -101,6 +103,15 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 //Remove blank lines
                 nativeCommentLines.RemoveAll(l => l.Trim().Length == 0);
 
+                //Remove * at line beginnings
+                for (var i = 0; i < nativeCommentLines.Count; i++)
+                {
+                    if (nativeCommentLines[i].StartsWith("* "))
+                    {
+                        nativeCommentLines[i] = nativeCommentLines[i].ReplaceFirst("* ", string.Empty);
+                    }
+                }
+
                 if (nativeCommentLines.Count > 10) //If native comment is really huge, cut & add NativeDB reference link to read
                 {
                     nativeCommentLines = nativeCommentLines.Take(9).ToList();
@@ -113,7 +124,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
                     {
                         Name = p.Name,
-                        Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType)
+                        Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType),
+                        Description = GetPossibleParameterDescriptionFromComment(p.Name, nativeCommentLines)
                     }).ToList(),
                     ReturnType = new TypeDefFunctionReturnType()
                     {
@@ -125,6 +137,33 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             }
 
             return functions;
+        }
+
+        private string GetPossibleParameterDescriptionFromComment(string parameterName, List<string> commentLines)
+        {
+            string bestDescriptionMatch = string.Empty;
+            foreach (string commentLine in commentLines)
+            {
+                //Worst match, replace this if we find something else
+                if (commentLine.StartsWith($"{parameterName} ", StringComparison.OrdinalIgnoreCase))
+                {
+                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName} ", string.Empty);
+                }
+                if (commentLine.Contains($"{parameterName}: ", StringComparison.OrdinalIgnoreCase))
+                {
+                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName}: ", string.Empty);
+                }
+                else if (commentLine.Contains($"{parameterName} = ", StringComparison.OrdinalIgnoreCase))
+                {
+                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName} = ", string.Empty);
+                }
+                else if (commentLine.Contains($"{parameterName} - ", StringComparison.OrdinalIgnoreCase))
+                {
+                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName} - ", string.Empty);
+                }
+            }
+
+            return bestDescriptionMatch;
         }
     }
 }
