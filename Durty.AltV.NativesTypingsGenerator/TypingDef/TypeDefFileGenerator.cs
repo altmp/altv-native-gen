@@ -6,11 +6,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 {
     public class TypeDefFileGenerator
     {
-        private readonly TypeDefFile _typeDefFile;
+        private readonly TypeDef _typeDefFile;
         private readonly bool _generateDocumentation;
 
         public TypeDefFileGenerator(
-            TypeDefFile typeDefFile,
+            TypeDef typeDefFile,
             bool generateDocumentation = true)
         {
             _typeDefFile = typeDefFile;

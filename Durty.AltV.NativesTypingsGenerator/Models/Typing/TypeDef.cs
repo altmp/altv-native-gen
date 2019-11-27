@@ -2,7 +2,7 @@
 
 namespace Durty.AltV.NativesTypingsGenerator.Models.Typing
 {
-    public class TypeDefFile
+    public class TypeDef
     {
         public List<TypeDefInterface> Interfaces { get; set; }
 

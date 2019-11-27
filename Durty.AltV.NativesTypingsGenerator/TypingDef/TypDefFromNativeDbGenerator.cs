@@ -6,14 +6,13 @@ using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
 namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 {
-    public class TypeDefFileFromNativeDbGenerator
+    public class TypDefFromNativeDbGenerator
     {
-        public TypeDefFile TypingDefinition { get; set; }
-        private readonly TypeDefFileGenerator _defFileGenerator;
+        private readonly TypeDef _typeDefinition;
 
-        public TypeDefFileFromNativeDbGenerator(List<TypeDefInterface> interfaces, List<TypeDefType> types, string nativesModuleName)
+        public TypDefFromNativeDbGenerator(List<TypeDefInterface> interfaces, List<TypeDefType> types, string nativesModuleName)
         {
-            TypingDefinition = new TypeDefFile()
+            _typeDefinition = new TypeDef()
             {
                 Interfaces = interfaces,
                 Types = types,
@@ -26,19 +25,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     }
                 }
             };
-
-            _defFileGenerator = new TypeDefFileGenerator(TypingDefinition);
         }
 
-        public string GetTypingFile()
+        public TypeDef GetTypingDefinition()
         {
-            string typeDefFileContent = _defFileGenerator.Generate();
-            return typeDefFileContent;
+            return _typeDefinition;
         }
 
         public void AddFunctionsFromNativeDb(Models.NativeDb.NativeDb nativeDb)
         {
-            TypeDefModule nativesModule = TypingDefinition.Modules.First(m => m.Name == "natives");
+            TypeDefModule nativesModule = _typeDefinition.Modules.First(m => m.Name == "natives");
 
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.Graphics));
             nativesModule.Functions.AddRange(GetFunctionsFromNativeGroup(nativeDb.System));

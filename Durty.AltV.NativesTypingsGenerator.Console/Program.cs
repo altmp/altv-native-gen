@@ -54,10 +54,12 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
             Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
 
-            TypeDefFileFromNativeDbGenerator typeDefGenerator = new TypeDefFileFromNativeDbGenerator(Interfaces, Types, "natives");
-
+            TypDefFromNativeDbGenerator typeDefGenerator = new TypDefFromNativeDbGenerator(Interfaces, Types, "natives");
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
-            string typingFileContent = typeDefGenerator.GetTypingFile();
+            TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
+
+            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, false);
+            string typingFileContent = typeDefFileGenerator.Generate();
 
             System.Console.WriteLine("Press any key to exit");
             System.Console.ReadKey();
