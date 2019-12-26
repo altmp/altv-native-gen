@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.TypingDef;
@@ -64,8 +65,10 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
             });
 
-            System.Console.WriteLine("Press any key to exit");
-            System.Console.ReadKey();
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "natives.d.ts");
+            File.WriteAllText(filePath, typingFileContent);
+
+            System.Console.WriteLine($"Done writing natives to file: {filePath}");
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi
             services.AddSingleton(provider => new NativeDbDownloader(AltVNativeDbJsonSourceUrl));
             services.AddSingleton<CachedNativeTypingDefRepository>();
             services.AddSingleton<NativeTypingDefService>();
-            services.AddSingleton(provider => new NativeDbCacheService(provider.GetService<NativeDbDownloader>(), TimeSpan.FromHours(6), provider.GetService<CachedNativeTypingDefRepository>()));
+            services.AddSingleton(provider => new NativeDbCacheService(provider.GetService<NativeDbDownloader>(), TimeSpan.FromHours(6)));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

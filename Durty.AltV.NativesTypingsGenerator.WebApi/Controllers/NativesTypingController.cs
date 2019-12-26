@@ -42,8 +42,11 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Controllers
         [HttpGet("cache/nativedb/triggerrefresh")]
         public IActionResult RefreshNativeDbCache()
         {
-            _nativeDbCacheService.RefreshCache();
-            return Ok();
+            if (_nativeDbCacheService.RefreshCache())
+            {
+                return Ok(_nativeDbCacheService.GetLatest());
+            }
+            return NotFound(_nativeDbCacheService.GetAll());
         }
 
         [HttpGet("cache/nativetypingdef/all")]

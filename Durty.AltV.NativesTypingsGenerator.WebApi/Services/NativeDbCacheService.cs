@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Durty.AltV.NativesTypingsGenerator.NativeDb;
-using Durty.AltV.NativesTypingsGenerator.WebApi.Repositories;
 
 namespace Durty.AltV.NativesTypingsGenerator.WebApi.Services
 {
@@ -10,23 +9,20 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Services
         private readonly NativeDbDownloader _nativeDbDownloader;
         private readonly Dictionary<DateTime, NativesTypingsGenerator.Models.NativeDb.NativeDb> _cachedNativeDbs;
         private readonly TimeSpan _refreshTimeSpan;
-        private readonly CachedNativeTypingDefRepository _cachedNativeTypingDefRepository;
 
         private NativesTypingsGenerator.Models.NativeDb.NativeDb _latestNativeDb = new NativesTypingsGenerator.Models.NativeDb.NativeDb()
         {
             VersionHash = "0"
         };
-        private DateTime _lastCacheDateTime;
+        private DateTime _lastCacheDateTime = DateTime.MinValue;
 
         public NativeDbCacheService(
             NativeDbDownloader nativeDbDownloader, 
-            TimeSpan cacheRefreshTimeSpan,
-            CachedNativeTypingDefRepository cachedNativeTypingDefRepository)
+            TimeSpan cacheRefreshTimeSpan)
         {
             _cachedNativeDbs = new Dictionary<DateTime, NativesTypingsGenerator.Models.NativeDb.NativeDb>();
             _nativeDbDownloader = nativeDbDownloader;
             _refreshTimeSpan = cacheRefreshTimeSpan;
-            _cachedNativeTypingDefRepository = cachedNativeTypingDefRepository;
         }
 
         public Dictionary<DateTime, NativesTypingsGenerator.Models.NativeDb.NativeDb> GetAll()
@@ -43,15 +39,16 @@ namespace Durty.AltV.NativesTypingsGenerator.WebApi.Services
             return _latestNativeDb;
         }
 
-        public void RefreshCache()
+        public bool RefreshCache()
         {
             NativesTypingsGenerator.Models.NativeDb.NativeDb nativeDb = _nativeDbDownloader.DownloadLatest();
             if (nativeDb.VersionHash == _latestNativeDb.VersionHash) //Downloaded NativeDB has not changed
-                return;
+                return false;
 
             _latestNativeDb = nativeDb;
             _lastCacheDateTime = DateTime.Now;
             _cachedNativeDbs.Add(DateTime.Now, nativeDb);
+            return true;
         }
     }
 }
