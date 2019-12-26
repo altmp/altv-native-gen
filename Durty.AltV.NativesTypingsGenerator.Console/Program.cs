@@ -51,9 +51,16 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
 
         static void Main(string[] args)
         {
-            System.Console.WriteLine("Downloading latest natives from AltV...");
-            NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
-            Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
+            // Download latest natives from nativedb
+            //System.Console.WriteLine("Downloading latest natives from AltV...");
+            //NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
+            //Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
+
+            // Read nativedb from file
+            System.Console.WriteLine("Reading natives from file...");
+            string nativeDbFilePath = Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
+            NativeDbFileReader nativeDbFileReader = new NativeDbFileReader(nativeDbFilePath);
+            Models.NativeDb.NativeDb nativeDb = nativeDbFileReader.Read();
 
             TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
@@ -66,6 +73,10 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             });
 
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
+            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            }
             File.WriteAllText(filePath, typingFileContent);
 
             System.Console.WriteLine($"Done writing natives to file: {filePath}");

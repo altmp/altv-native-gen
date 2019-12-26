@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Durty.AltV.NativesTypingsGenerator.Extensions
 {
@@ -21,6 +22,17 @@ namespace Durty.AltV.NativesTypingsGenerator.Extensions
                 return text;
             }
             return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        }
+
+        public static string GetSha256Hash(this string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            using var sha = new SHA256Managed();
+            byte[] textData = System.Text.Encoding.UTF8.GetBytes(text);
+            byte[] hash = sha.ComputeHash(textData);
+            return BitConverter.ToString(hash).Replace("-", string.Empty);
         }
     }
 }

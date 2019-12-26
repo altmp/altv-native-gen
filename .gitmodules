@@ -1,0 +1,3 @@
+[submodule "Durty.AltV.NativesTypingsGenerator.Console/resources/natives"]
+	path = Durty.AltV.NativesTypingsGenerator.Console/resources/natives
+	url = https://github.com/altmp/natives.git

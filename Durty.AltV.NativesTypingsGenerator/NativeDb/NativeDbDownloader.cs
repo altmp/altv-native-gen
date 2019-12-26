@@ -1,6 +1,5 @@
-﻿using System;
-using System.Net;
-using System.Security.Cryptography;
+﻿using System.Net;
+using Durty.AltV.NativesTypingsGenerator.Extensions;
 using Newtonsoft.Json;
 
 namespace Durty.AltV.NativesTypingsGenerator.NativeDb
@@ -20,22 +19,11 @@ namespace Durty.AltV.NativesTypingsGenerator.NativeDb
             using (WebClient webClient = new WebClient())
             {
                 string nativesJson = webClient.DownloadString(_nativesJsonUrl);
-                string nativesHash = GetSha256Hash(nativesJson);
+                string nativesHash = nativesJson.GetSha256Hash();
                 nativeDb = JsonConvert.DeserializeObject<Models.NativeDb.NativeDb>(nativesJson);
                 nativeDb.VersionHash = nativesHash;
             }
             return nativeDb;
-        }
-
-        private string GetSha256Hash(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return string.Empty;
-
-            using var sha = new SHA256Managed();
-            byte[] textData = System.Text.Encoding.UTF8.GetBytes(text);
-            byte[] hash = sha.ComputeHash(textData);
-            return BitConverter.ToString(hash).Replace("-", string.Empty);
         }
     }
 }

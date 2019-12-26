@@ -9,4 +9,10 @@
     <ProjectReference Include="..\Durty.AltV.NativesTypingsGenerator\Durty.AltV.NativesTypingsGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="resources\natives\natives.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
