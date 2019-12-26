@@ -65,7 +65,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
             });
 
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "natives.d.ts");
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
             File.WriteAllText(filePath, typingFileContent);
 
             System.Console.WriteLine($"Done writing natives to file: {filePath}");
