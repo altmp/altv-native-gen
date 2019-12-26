@@ -61,6 +61,11 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             string nativeDbFilePath = Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
             NativeDbFileReader nativeDbFileReader = new NativeDbFileReader(nativeDbFilePath);
             Models.NativeDb.NativeDb nativeDb = nativeDbFileReader.Read();
+            if (nativeDb == null)
+            {
+                System.Console.WriteLine("Failed to read natives from file. File doesnt exist or is invalid.");
+                return;
+            }
 
             TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);

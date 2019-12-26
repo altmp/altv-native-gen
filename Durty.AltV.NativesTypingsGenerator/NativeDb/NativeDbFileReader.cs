@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Durty.AltV.NativesTypingsGenerator.Extensions;
 using Newtonsoft.Json;
 
@@ -20,9 +21,16 @@ namespace Durty.AltV.NativesTypingsGenerator.NativeDb
 
             string nativesJson = File.ReadAllText(_filePath);
             string nativesHash = nativesJson.GetSha256Hash();
-            Models.NativeDb.NativeDb nativeDb = JsonConvert.DeserializeObject<Models.NativeDb.NativeDb>(nativesJson);
-            nativeDb.VersionHash = nativesHash;
-            return nativeDb;
+            try
+            {
+                Models.NativeDb.NativeDb nativeDb = JsonConvert.DeserializeObject<Models.NativeDb.NativeDb>(nativesJson);
+                nativeDb.VersionHash = nativesHash;
+                return nativeDb;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
     }
 }
