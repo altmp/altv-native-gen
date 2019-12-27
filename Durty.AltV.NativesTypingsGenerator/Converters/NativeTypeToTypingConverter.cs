@@ -51,7 +51,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
         {
             return nativeType switch
             {
-                NativeType.Any => "number",
+                NativeType.Any => "any",
                 NativeType.Boolean => "boolean",
                 NativeType.Float => "number",
                 NativeType.Int => "number",
