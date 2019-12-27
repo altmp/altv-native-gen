@@ -27,7 +27,7 @@ namespace Durty.AltV.NativesTypingsGenerator.NativeDb
                 nativeDb.VersionHash = nativesHash;
                 return nativeDb;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
