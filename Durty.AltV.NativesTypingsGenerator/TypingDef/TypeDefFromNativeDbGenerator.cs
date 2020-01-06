@@ -136,7 +136,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
                     {
                         Name = p.Name,
-                        Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType),
+                        Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType, p.IsReference),
                         Description = _tryResolveDocs ? GetPossibleParameterDescriptionFromComment(p.Name, nativeCommentLines) : string.Empty
                     }).ToList(),
                     ReturnType = new TypeDefFunctionReturnType()

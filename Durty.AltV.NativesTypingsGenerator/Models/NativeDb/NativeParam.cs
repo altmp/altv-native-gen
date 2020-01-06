@@ -9,5 +9,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
 
         [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("ref")]
+        public bool IsReference { get; set; }
     }
 }
