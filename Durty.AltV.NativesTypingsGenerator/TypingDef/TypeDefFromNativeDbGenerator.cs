@@ -22,13 +22,13 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             _tryResolveDocs = tryResolveDocs;
             _typeDefinition = new TypeDef()
             {
-                Interfaces = interfaces,
-                Types = types,
                 Modules = new List<TypeDefModule>()
                 {
                     new TypeDefModule()
                     {
                         Name = nativesModuleName,
+                        Interfaces = interfaces,
+                        Types = types,
                         Functions = new List<TypeDefFunction>()
                     }
                 }

@@ -34,11 +34,6 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 }
                 fileContent.Append("\n");
             }
-            fileContent.Append(_typeDefFile.Interfaces.Aggregate(new StringBuilder(), (current, typeDefInterface) => current.Append(GenerateInterface(typeDefInterface)).Append("\n")));
-            fileContent.Append("\n");
-
-            fileContent.Append(_typeDefFile.Types.Aggregate(new StringBuilder(), (current, typeDefType) => current.Append(GenerateType(typeDefType)).Append("\n")));
-            fileContent.Append("\n");
 
             foreach (TypeDefModule typeDefModule in _typeDefFile.Modules)
             {
@@ -51,21 +46,25 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
         private StringBuilder GenerateInterface(TypeDefInterface typeDefInterface)
         {
-            StringBuilder result = new StringBuilder($"interface {typeDefInterface.Name} {{\n");
-            result = typeDefInterface.Properties.Aggregate(result, (current, property) => current.Append($"  {property.Name}: {property.Type};\n"));
-            result.Append("}");
+            StringBuilder result = new StringBuilder($"\tinterface {typeDefInterface.Name} {{\n");
+            result = typeDefInterface.Properties.Aggregate(result, (current, property) => current.Append($"\t\t{property.Name}: {property.Type};\n"));
+            result.Append("\t}");
             return result;
         }
 
         private string GenerateType(TypeDefType typeDefType)
         {
-            return $"type {typeDefType.Name} = {typeDefType.TypeDefinition};";
+            return $"\ttype {typeDefType.Name} = {typeDefType.TypeDefinition};";
         }
 
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
             StringBuilder result = new StringBuilder(string.Empty);
             result.Append($"declare module \"{typeDefModule.Name}\" {{\n");
+            result.Append(typeDefModule.Interfaces.Aggregate(new StringBuilder(), (current, typeDefInterface) => current.Append(GenerateInterface(typeDefInterface)).Append("\n")));
+            result.Append("\n");
+            result.Append(typeDefModule.Types.Aggregate(new StringBuilder(), (current, typeDefType) => current.Append(GenerateType(typeDefType)).Append("\n")));
+            result.Append("\n");
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
             result.Append("}");
             return result;
