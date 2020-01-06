@@ -94,6 +94,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             NativeTypeToTypingConverter nativeTypeToTypingConverter = new NativeTypeToTypingConverter();
             NativeReturnTypeToTypingConverter nativeReturnTypeToTypingConverter = new NativeReturnTypeToTypingConverter();
 
+            //TODO: Add possibility to override certain properties of retrieved native function (for example override param type etc.)
             List<TypeDefFunction> functions = new List<TypeDefFunction>();
             foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty && native.Hashes != null && native.Hashes.Count != 0))
             {

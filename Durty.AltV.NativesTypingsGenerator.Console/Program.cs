@@ -40,12 +40,12 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             new TypeDefType()
             {
                 Name = "MemoryBuffer",
-                TargetTypeName = "object"
+                TypeDefinition = "object"
             },
             new TypeDefType()
             {
                 Name = "vectorPtr",
-                TargetTypeName = "Vector3"
+                TypeDefinition = "Vector3"
             }
         };
 

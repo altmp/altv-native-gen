@@ -59,7 +59,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
         private string GenerateType(TypeDefType typeDefType)
         {
-            return $"type {typeDefType.Name} = {typeDefType.TargetTypeName};";
+            return $"type {typeDefType.Name} = {typeDefType.TypeDefinition};";
         }
 
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
