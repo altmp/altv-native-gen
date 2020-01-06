@@ -1,6 +1,6 @@
 {
   "name": "@altv/native-types",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Typescript typings for alt:V client natives",
   "typings": "natives.d.ts",
   "repository": {
