@@ -18,7 +18,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.Vector3 => "Vector3" + referenceType,
                 NativeType.Void => "void" + referenceType,
                 NativeType.ScrHandle => "int" + referenceType,
-                NativeType.MemoryBuffer => "MemoryBuffer" + referenceType,
+                NativeType.MemoryBuffer => "object" + referenceType,
                 NativeType.Interior => "int" + referenceType,
                 NativeType.Object => "int" + referenceType,
                 NativeType.Hash => "int" + referenceType,

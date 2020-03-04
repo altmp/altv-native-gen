@@ -55,20 +55,26 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"\t\tprivate readonly JSObject native;\n\n");
             foreach (var typeDefFunction in typeDefModule.Functions)
             {
-                result.Append($"\t\tprivate readonly Function {typeDefFunction.Name};\n");
+                result.Append($"\t\tprivate Function {GetFixedTypeDefFunctionName(typeDefFunction.Name)};\n");
             }
             result.Append($"\n");
             result.Append($"\t\tpublic NativeNatives(JSObject native)\n\t\t{{\n");
             result.Append($"\t\t\tthis.native = native;\n");
-            foreach (var typeDefFunction in typeDefModule.Functions)
-            {
-                result.Append($"\t\t\tif ({typeDefFunction.Name} == null) {typeDefFunction.Name} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
-            }
             result.Append($"\t\t}}\n\n");
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
             result.Append("\t}\n");
             result.Append("}");
             return result;
+        }
+
+        private string GetFixedTypeDefFunctionName(string name)
+        {
+            return name.StartsWith("_") ? "_" + name : name;
+        }
+
+        private string GetFixedTypeDefParameterName(string name)
+        {
+            return IsParameterNameReservedCSharpKeyWord(name) ? "@" + name : name;
         }
 
         private StringBuilder GenerateFunction(TypeDefFunction typeDefFunction)
@@ -78,23 +84,25 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             {
                 result.Append(GenerateFunctionDocumentation(typeDefFunction));
             }
+            var fixedTypeDefName = GetFixedTypeDefFunctionName(typeDefFunction.Name);
             result.Append($"\t\tpublic {new NativeReturnTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType)} {typeDefFunction.Name.FirstCharToUpper()}(");
             foreach (var parameter in typeDefFunction.Parameters)
             {
-                result.Append($"{new NativeTypeToCSharpTypingConverter().Convert(null, parameter.NativeType, false)} {parameter.Name}");
+                result.Append($"{new NativeTypeToCSharpTypingConverter().Convert(null, parameter.NativeType, false)} {GetFixedTypeDefParameterName(parameter.Name)}");
                 if (typeDefFunction.Parameters.Last() != parameter)
                 {
                     result.Append(", ");
                 }
             }
             result.Append($")\n\t\t{{\n");
+            result.Append($"\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
             if (typeDefFunction.ReturnType.Name != "void")
             {
-                result.Append($"\t\t\treturn {typeDefFunction.Name}.Call(native");
+                result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
             }
             else
             {
-                result.Append($"\t\t\t{typeDefFunction.Name}.Call(native");
+                result.Append($"\t\t\t{fixedTypeDefName}.Call(native");
             }
             foreach (var parameter in typeDefFunction.Parameters)
             {
@@ -102,7 +110,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 {
                     result.Append(", ");
                 }
-                result.Append($"{parameter.Name}");
+                result.Append($"{GetFixedTypeDefParameterName(parameter.Name)}");
                 if (typeDefFunction.Parameters.Last() != parameter)
                 {
                     result.Append(", ");
@@ -119,7 +127,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         {
             //When no docs exist
             if (typeDefFunction.ReturnType.NativeType.Count <= 1 &&
-                string.IsNullOrEmpty(typeDefFunction.Description) && 
+                string.IsNullOrEmpty(typeDefFunction.Description) &&
                 typeDefFunction.Parameters.All(p => string.IsNullOrEmpty(p.Description) && string.IsNullOrEmpty(typeDefFunction.ReturnType.Description)))
                 return new StringBuilder(string.Empty);
 
@@ -140,7 +148,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             {
                 if (!string.IsNullOrEmpty(parameter.Description))
                 {
-                    result.Append($"\t\t/// <param name=\"{parameter.Name}\">{parameter.Description}</param>\n");
+                    result.Append($"\t\t/// <param name=\"{GetFixedTypeDefParameterName(parameter.Name)}\">{parameter.Description}</param>\n");
                 }
             }
             //For now build return doc with return type because we dont have strong typed return value for natives returning arrays currently..
@@ -168,6 +176,92 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 result.Append($"\t\t/// <returns>{returnDescription}</returns>\n");
             }
             return result;
+        }
+
+        private bool IsParameterNameReservedCSharpKeyWord(string parameterName)
+        {
+            var reservedKeywords = new List<string>()
+            {
+                "abstract",
+                "as",
+                "base",
+                "bool",
+                "break",
+                "byte",
+                "case",
+                "catch",
+                "char",
+                "checked",
+                "class",
+                "const",
+                "continue",
+                "decimal",
+                "default",
+                "delegate",
+                "do",
+                "double",
+                "else",
+                "enum",
+                "event",
+                "explicit",
+                "extern",
+                "false",
+                "finally",
+                "fixed",
+                "float",
+                "for",
+                "foreach",
+                "goto",
+                "if",
+                "implicit",
+                "in",
+                "int",
+                "interface",
+                "internal",
+                "is",
+                "lock",
+                "long",
+                "namespace",
+                "new",
+                "null",
+                "object",
+                "operator",
+                "out",
+                "override",
+                "params",
+                "private",
+                "protected",
+                "public",
+                "readonly",
+                "ref",
+                "return",
+                "sbyte",
+                "sealed",
+                "short",
+                "sizeof",
+                "stackalloc",
+                "static",
+                "string",
+                "struct",
+                "switch",
+                "this",
+                "throw",
+                "true",
+                "try",
+                "typeof",
+                "uint",
+                "ulong",
+                "unchecked",
+                "unsafe",
+                "ushort",
+                "using",
+                "static",
+                "virtual",
+                "void",
+                "volatile",
+                "while"
+            };
+            return reservedKeywords.Any(k => parameterName.ToLower() == k);
         }
     }
 }
