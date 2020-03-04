@@ -62,7 +62,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"\t\t\tthis.native = native;\n");
             foreach (var typeDefFunction in typeDefModule.Functions)
             {
-                result.Append($"\t\t\tdrawRect = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
+                result.Append($"\t\t\tif ({typeDefFunction.Name} == null) {typeDefFunction.Name} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
             }
             result.Append($"\t\t}}\n\n");
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
@@ -88,7 +88,14 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 }
             }
             result.Append($")\n\t\t{{\n");
-            result.Append($"\t\t\t{typeDefFunction.Name}.Call(native");
+            if (typeDefFunction.ReturnType.Name != "void")
+            {
+                result.Append($"\t\t\treturn {typeDefFunction.Name}.Call(native");
+            }
+            else
+            {
+                result.Append($"\t\t\t{typeDefFunction.Name}.Call(native");
+            }
             foreach (var parameter in typeDefFunction.Parameters)
             {
                 if (typeDefFunction.Parameters.First() == parameter)
