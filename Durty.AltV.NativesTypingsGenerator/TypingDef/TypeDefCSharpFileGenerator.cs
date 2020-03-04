@@ -111,7 +111,9 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private StringBuilder GenerateFunctionDocumentation(TypeDefFunction typeDefFunction)
         {
             //When no docs exist
-            if (string.IsNullOrEmpty(typeDefFunction.Description) && typeDefFunction.Parameters.All(p => string.IsNullOrEmpty(p.Description) && string.IsNullOrEmpty(typeDefFunction.ReturnType.Description)))
+            if (typeDefFunction.ReturnType.NativeType.Count <= 1 &&
+                string.IsNullOrEmpty(typeDefFunction.Description) && 
+                typeDefFunction.Parameters.All(p => string.IsNullOrEmpty(p.Description) && string.IsNullOrEmpty(typeDefFunction.ReturnType.Description)))
                 return new StringBuilder(string.Empty);
 
             StringBuilder result = new StringBuilder($"\t\t/// <summary>\n");
@@ -134,9 +136,29 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     result.Append($"\t\t/// <param name=\"{parameter.Name}\">{parameter.Description}</param>\n");
                 }
             }
-            if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description))
+            //For now build return doc with return type because we dont have strong typed return value for natives returning arrays currently..
+            //if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description))
+            //{
+            //    result.Append($"\t\t/// <returns>{typeDefFunction.ReturnType.Description}</returns>\n");
+            //}
+            string returnTypeForTyping = string.Empty;
+            if (typeDefFunction.ReturnType.NativeType.Count > 1)
             {
-                result.Append($"\t\t/// <returns>{typeDefFunction.ReturnType.Description}</returns>\n");
+                returnTypeForTyping = "Array<";
+                for (int i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
+                {
+                    returnTypeForTyping += new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[i], false);
+                    if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
+                    {
+                        returnTypeForTyping += ", ";
+                    }
+                }
+                returnTypeForTyping += ">";
+            }
+            if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description) || !string.IsNullOrEmpty(returnTypeForTyping))
+            {
+                var returnDescription = $"{returnTypeForTyping} {typeDefFunction.ReturnType.Description}".Trim();
+                result.Append($"\t\t/// <returns>{returnDescription}</returns>\n");
             }
             return result;
         }

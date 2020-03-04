@@ -15,17 +15,17 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 return nativeTypeToTypingConverter.Convert(native, nativeReturnTypes.First(), false);
             }
 
-            string returnTypeForTyping = "Array<";
-            for (int i = 0; i < nativeReturnTypes.Count; i++)
-            {
-                returnTypeForTyping += nativeTypeToTypingConverter.Convert(native, nativeReturnTypes[i], false);
-                if (i != nativeReturnTypes.Count - 1)
-                {
-                    returnTypeForTyping += ", ";
-                }
-            }
-            returnTypeForTyping += ">";
-            return returnTypeForTyping;
+            //string returnTypeForTyping = "Array<";
+            //for (int i = 0; i < nativeReturnTypes.Count; i++)
+            //{
+            //    returnTypeForTyping += nativeTypeToTypingConverter.Convert(native, nativeReturnTypes[i], false);
+            //    if (i != nativeReturnTypes.Count - 1)
+            //    {
+            //        returnTypeForTyping += ", ";
+            //    }
+            //}
+            //returnTypeForTyping += ">";
+            return "object"; //For now always return object...
         }
     }
 }
