@@ -85,7 +85,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 result.Append(GenerateFunctionDocumentation(typeDefFunction));
             }
             var fixedTypeDefName = GetFixedTypeDefFunctionName(typeDefFunction.Name);
-            result.Append($"\t\tpublic {new NativeReturnTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType)} {typeDefFunction.Name.FirstCharToUpper()}(");
+            var cSharpReturnType = new NativeReturnTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType);
+            result.Append($"\t\tpublic {cSharpReturnType} {typeDefFunction.Name.FirstCharToUpper()}(");
             foreach (var parameter in typeDefFunction.Parameters)
             {
                 result.Append($"{new NativeTypeToCSharpTypingConverter().Convert(null, parameter.NativeType, false)} {GetFixedTypeDefParameterName(parameter.Name)}");
@@ -98,7 +99,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
             if (typeDefFunction.ReturnType.Name != "void")
             {
-                result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
+                if (typeDefFunction.ReturnType.Name == "any") {
+                    result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
+                } else {
+                    result.Append($"\t\t\treturn ({cSharpReturnType}) {fixedTypeDefName}.Call(native");
+                }
             }
             else
             {
