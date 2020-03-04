@@ -48,7 +48,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 TypeDefinition = "Vector3"
             }
         };
-
+        
         static void Main(string[] args)
         {
             // Download latest natives from nativedb
@@ -84,7 +84,10 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             }
             File.WriteAllText(filePath, typingFileContent);
 
-            System.Console.WriteLine($"Done writing natives to file: {filePath}");
+            System.Console.WriteLine($"Done writing natives typings to file: {filePath}");
+
+            TypeDefCSharpFileGenerator typeDefCSharpFileGenerator = new TypeDefCSharpFileGenerator(typingDefinition);
+            string csharpTypingFileContent = typeDefCSharpFileGenerator.Generate();
         }
     }
 }
