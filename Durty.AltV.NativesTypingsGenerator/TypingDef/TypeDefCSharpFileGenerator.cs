@@ -99,9 +99,26 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
             if (typeDefFunction.ReturnType.Name != "void")
             {
-                if (typeDefFunction.ReturnType.Name == "any") {
+                if (typeDefFunction.ReturnType.Name == "any")
+                {
                     result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
-                } else {
+                }
+                else if (typeDefFunction.ReturnType.NativeType.Count > 1)
+                {
+                    result.Append($"\t\t\var results = (Array) {fixedTypeDefName}.Call(native");
+                    returnTypeForTyping = "(";
+                    for (int i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
+                    {
+                        returnTypeForTyping += $"({new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[i], false)}) results[{i}]";
+                        if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
+                        {
+                            returnTypeForTyping += ", ";
+                        }
+                    }
+                    returnTypeForTyping += ")";
+                }
+                else
+                {
                     result.Append($"\t\t\treturn ({cSharpReturnType}) {fixedTypeDefName}.Call(native");
                 }
             }
