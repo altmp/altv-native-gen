@@ -49,6 +49,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
             StringBuilder result = new StringBuilder(string.Empty);
+            result.Append($"using System.Numerics;\n");
             result.Append($"using WebAssembly;\n");
             result.Append($"using WebAssembly.Core;\n\n");
             result.Append($"namespace AltV.Net.Client\n{{\n");
