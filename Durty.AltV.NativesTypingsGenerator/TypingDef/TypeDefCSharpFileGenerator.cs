@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Durty.AltV.NativesTypingsGenerator.Converters;
 using Durty.AltV.NativesTypingsGenerator.Extensions;
+using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
 namespace Durty.AltV.NativesTypingsGenerator.TypingDef
@@ -61,6 +62,12 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"\t\tpublic NativeNatives(JSObject native)\n\t\t{{\n");
             result.Append($"\t\t\tthis.native = native;\n");
             result.Append($"\t\t}}\n\n");
+            
+            result.Append("\t\tprivate static Vector3 JSObjectToVector3(object obj) {\n");
+            result.Append("\t\t\tvar jsObject = (JSObject) obj;\n");
+            result.Append("\t\t\treturn new Vector3((float) jsObject.GetObjectProperty(\"x\"), (float) jsObject.GetObjectProperty(\"y\"),(float) jsObject.GetObjectProperty(\"z\"));\n");
+            result.Append("\t\t}\n\n");
+            
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
             result.Append("\t}\n");
             result.Append("}");
@@ -104,20 +111,17 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
                     GenerateCallParameters(result, typeDefFunction);
                 }
-                else if (typeDefFunction.ReturnType.Name == "Vector3")
-                {
-                    result.Append($"\t\t\tvar vectorObj = (JSObject) {fixedTypeDefName}.Call(native");
-                    GenerateCallParameters(result, typeDefFunction);
-                    result.Append($"\t\t\treturn new Vector3((float) vectorObj.GetObjectProperty(\"x\"), (float) vectorObj.GetObjectProperty(\"y\"),(float) vectorObj.GetObjectProperty(\"z\"));\n");
-                }
                 else if (typeDefFunction.ReturnType.NativeType.Count > 1)
                 {
                     result.Append($"\t\t\tvar results = (Array) {fixedTypeDefName}.Call(native");
                     GenerateCallParameters(result, typeDefFunction);
                     var returnTypeForTyping = "\t\t\treturn (";
-                    for (int i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
+                    for (var i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
                     {
-                        returnTypeForTyping += $"({new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[i], false)}) results[{i}]";
+                        var tupleReturnType = typeDefFunction.ReturnType.NativeType[i];
+                        var cSharpTupleReturnType =
+                            new NativeTypeToCSharpTypingConverter().Convert(null, tupleReturnType, false);
+                        returnTypeForTyping += TransformReturnValue(tupleReturnType, cSharpTupleReturnType, $"results[{i}]");
                         if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
                         {
                             returnTypeForTyping += ", ";
@@ -128,8 +132,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 }
                 else
                 {
-                    result.Append($"\t\t\treturn ({cSharpReturnType}) {fixedTypeDefName}.Call(native");
-                    GenerateCallParameters(result, typeDefFunction);
+                    var returnValue = new StringBuilder();
+                    returnValue.Append($"{fixedTypeDefName}.Call(native");
+                    GenerateCallParameters(returnValue, typeDefFunction, false);
+                    var transformedResult = TransformReturnValue(typeDefFunction.ReturnType.NativeType.First(), cSharpReturnType, returnValue.ToString());
+                    result.Append($"\t\t\treturn {transformedResult};\n");
                 }
             }
             else
@@ -143,7 +150,21 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             return result;
         }
 
-        private void GenerateCallParameters(StringBuilder result, TypeDefFunction typeDefFunction)
+        private string TransformReturnValue(NativeType returnValueType, string csharpReturnType, string returnValue)
+        {
+            if (returnValueType == NativeType.Vector3)
+            {
+                return $"JSObjectToVector3({returnValue})";
+            }
+
+            if (returnValueType == NativeType.Object || returnValueType == NativeType.Void)
+            {
+                return returnValue;
+            }
+            return $"({csharpReturnType}) {returnValue}";
+        }
+
+        private void GenerateCallParameters(StringBuilder result, TypeDefFunction typeDefFunction, bool closeFunction = true)
         {
             foreach (var parameter in typeDefFunction.Parameters)
             {
@@ -157,7 +178,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     result.Append(", ");
                 }
             }
-            result.Append($");\n");
+
+            result.Append(closeFunction ? $");\n" : ")");
         }
 
         private StringBuilder GenerateFunctionDocumentation(TypeDefFunction typeDefFunction)
