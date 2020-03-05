@@ -12,7 +12,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
             {
                 NativeType.Any => "object" + referenceType,
                 NativeType.Boolean => "bool" + referenceType,
-                NativeType.Float => "int" + referenceType,
+                NativeType.Float => "double" + referenceType,
                 NativeType.Int => "int" + referenceType,
                 NativeType.String => "string" + referenceType,
                 NativeType.Vector3 => "Vector3" + referenceType,
