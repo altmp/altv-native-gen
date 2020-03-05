@@ -16,10 +16,18 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
             }
             else if (nativeReturnTypes.Count > 1) 
             {
-                string returnTypeForTyping = "(";
-                for (int i = 0; i < nativeReturnTypes.Count; i++)
+                var returnTypeForTyping = "(";
+                for (var i = 0; i < nativeReturnTypes.Count; i++)
                 {
-                    returnTypeForTyping += nativeTypeToTypingConverter.Convert(native, nativeReturnTypes[i], false);
+                    var tupleReturnType = nativeTypeToTypingConverter.Convert(native, nativeReturnTypes[i], false);
+                    if (tupleReturnType == "void")
+                    {
+                        returnTypeForTyping += "object";
+                    }
+                    else
+                    {
+                        returnTypeForTyping += tupleReturnType;
+                    }
                     if (i != nativeReturnTypes.Count - 1)
                     {
                         returnTypeForTyping += ", ";
