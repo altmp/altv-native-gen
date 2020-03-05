@@ -85,7 +85,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 result.Append(GenerateFunctionDocumentation(typeDefFunction));
             }
             var fixedTypeDefName = GetFixedTypeDefFunctionName(typeDefFunction.Name);
-            result.Append($"\t\tpublic {new NativeReturnTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType)} {typeDefFunction.Name.FirstCharToUpper()}(");
+            var cSharpReturnType = new NativeReturnTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType);
+            result.Append($"\t\tpublic {cSharpReturnType} {typeDefFunction.Name.FirstCharToUpper()}(");
             foreach (var parameter in typeDefFunction.Parameters)
             {
                 result.Append($"{new NativeTypeToCSharpTypingConverter().Convert(null, parameter.NativeType, false)} {GetFixedTypeDefParameterName(parameter.Name)}");
@@ -98,7 +99,34 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
             if (typeDefFunction.ReturnType.Name != "void")
             {
-                result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
+                if (typeDefFunction.ReturnType.Name == "any")
+                {
+                    result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
+                }
+                else if (typeDefFunction.ReturnType.Name == "Vector3")
+                {
+                    result.Append($"\t\t\var vectorObj = (JSObject) {fixedTypeDefName}.Call(native");
+                    result.Append($"\t\t\return new Vector3((float) vectorObj.GetObjectProperty(\"x\"), (float) vectorObj.GetObjectProperty(\"y\"),(float) vectorObj.GetObjectProperty(\"z\"));");
+                }
+                else if (typeDefFunction.ReturnType.NativeType.Count > 1)
+                {
+                    result.Append($"\t\t\var results = (Array) {fixedTypeDefName}.Call(native");
+                    returnTypeForTyping = "return (";
+                    for (int i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
+                    {
+                        returnTypeForTyping += $"({new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[i], false)}) results[{i}]";
+                        if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
+                        {
+                            returnTypeForTyping += ", ";
+                        }
+                    }
+                    returnTypeForTyping += ");";
+                    result.Append(returnTypeForTyping);
+                }
+                else
+                {
+                    result.Append($"\t\t\treturn ({cSharpReturnType}) {fixedTypeDefName}.Call(native");
+                }
             }
             else
             {
