@@ -26,7 +26,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                     }
                 }
                 returnTypeForTyping += ")";
-                retrun returnTypeForTyping;
+                return returnTypeForTyping;
             }
             return "object";
         }
