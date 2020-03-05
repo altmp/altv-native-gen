@@ -111,7 +111,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 else if (typeDefFunction.ReturnType.NativeType.Count > 1)
                 {
                     result.Append($"\t\t\var results = (Array) {fixedTypeDefName}.Call(native");
-                    returnTypeForTyping = "return (";
+                    var returnTypeForTyping = "return (";
                     for (int i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
                     {
                         returnTypeForTyping += $"({new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[i], false)}) results[{i}]";
