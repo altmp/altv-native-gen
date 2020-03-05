@@ -122,7 +122,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                         var tupleReturnType = typeDefFunction.ReturnType.NativeType[i];
                         var cSharpTupleReturnType =
                             new NativeTypeToCSharpTypingConverter().Convert(null, tupleReturnType, false);
-                        returnTypeForTyping += TransformReturnValue(tupleReturnType, cSharpTupleReturnType, $"results[{i}]");
+                        returnTypeForTyping += TransformReturnValue(cSharpTupleReturnType, $"results[{i}]");
                         if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
                         {
                             returnTypeForTyping += ", ";
@@ -136,7 +136,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     var returnValue = new StringBuilder();
                     returnValue.Append($"{fixedTypeDefName}.Call(native");
                     GenerateCallParameters(returnValue, typeDefFunction, false);
-                    var transformedResult = TransformReturnValue(typeDefFunction.ReturnType.NativeType.First(), cSharpReturnType, returnValue.ToString());
+                    var transformedResult = TransformReturnValue(cSharpReturnType, returnValue.ToString());
                     result.Append($"\t\t\treturn {transformedResult};\n");
                 }
             }
@@ -151,14 +151,14 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             return result;
         }
 
-        private string TransformReturnValue(NativeType returnValueType, string csharpReturnType, string returnValue)
+        private string TransformReturnValue(string csharpReturnType, string returnValue)
         {
-            if (returnValueType == NativeType.Vector3)
+            if (csharpReturnType == "Vector3")
             {
                 return $"JSObjectToVector3({returnValue})";
             }
 
-            if (returnValueType == NativeType.Object || returnValueType == NativeType.Void)
+            if (csharpReturnType == "object")
             {
                 return returnValue;
             }
