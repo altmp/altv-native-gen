@@ -158,7 +158,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 return $"JSObjectToVector3({returnValue})";
             }
 
-            if (csharpReturnType == "object")
+            if (csharpReturnType == "object" || csharpReturnType == "void")
             {
                 return returnValue;
             }
