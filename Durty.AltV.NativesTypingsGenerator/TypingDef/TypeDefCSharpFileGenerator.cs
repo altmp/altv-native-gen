@@ -103,6 +103,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 {
                     result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
                 }
+                else if (typeDefFunction.ReturnType.Name == "Vector3")
+                {
+                    result.Append($"\t\t\var vectorObj = (JSObject) {fixedTypeDefName}.Call(native");
+                    result.Append($"\t\t\return new Vector3((float) vectorObj.GetObjectProperty(\"x\"), (float) vectorObj.GetObjectProperty(\"y\"),(float) vectorObj.GetObjectProperty(\"z\"));");
+                }
                 else if (typeDefFunction.ReturnType.NativeType.Count > 1)
                 {
                     result.Append($"\t\t\var results = (Array) {fixedTypeDefName}.Call(native");
