@@ -47,12 +47,12 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             return fileContent.ToString();
         }
 
-        private StringBuilder GenerateInterface(TypeDefInterface typeDefInterface)
+        private string GenerateInterface(TypeDefInterface typeDefInterface)
         {
             StringBuilder result = new StringBuilder($"{_indent}interface {typeDefInterface.Name} {{\n");
             result = typeDefInterface.Properties.Aggregate(result, (current, property) => current.Append($"{_indent}{_indent}{property.Name}: {property.Type};\n"));
             result.Append($"{_indent}}}");
-            return result;
+            return result.ToString();
         }
 
         private string GenerateType(TypeDefType typeDefType)
@@ -62,13 +62,13 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
-            StringBuilder result = new StringBuilder(string.Empty);
+            StringBuilder result = new StringBuilder();
             result.Append($"declare module \"{typeDefModule.Name}\" {{\n");
-            result.Append(typeDefModule.Interfaces.Aggregate(new StringBuilder(), (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n")));
+            typeDefModule.Interfaces.Aggregate(result, (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n"));
             result.Append("\n");
-            result.Append(typeDefModule.Types.Aggregate(new StringBuilder(), (current, typeDef) => current.Append($"{GenerateType(typeDef)}\n")));
+            typeDefModule.Types.Aggregate(result, (current, typeDef) => current.Append($"{GenerateType(typeDef)}\n"));
             result.Append("\n");
-            result.Append(typeDefModule.Functions.Aggregate(result, (current, typeDef) => current.Append($"{GenerateFunction(typeDef)}\n")));
+            typeDefModule.Functions.Aggregate(result, (current, typeDef) => current.Append($"{GenerateFunction(typeDef)}\n"));
             result.Length--;
             result.Append("}");
             return result;
