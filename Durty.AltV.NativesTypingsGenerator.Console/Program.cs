@@ -60,6 +60,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
             string fileIndent = null;
             bool generateHeader = true;
+            bool generateDocs = true;
             List<KeyValuePair<string, string>> arguments = new List<KeyValuePair<string, string>>();
             for (var i = 0; i < args.Length; i++)
             {
@@ -81,6 +82,9 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 {
                     case "--disableHeader":
                         generateHeader = false;
+                        break;
+                    case "--disableDocs":
+                        generateDocs = false;
                         break;
                     case "--nativesPath" when val != null:
                         nativeDbFilePath = Path.GetFullPath(val);
@@ -109,7 +113,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 
-            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, true, fileIndent);
+            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, generateDocs, fileIndent);
             string typingFileContent = typeDefFileGenerator.Generate(generateHeader, new List<string>()
             {
                 $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
