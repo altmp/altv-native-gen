@@ -48,17 +48,55 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 TypeDefinition = "Vector3"
             }
         };
-        
+
         static void Main(string[] args)
         {
             // Download latest natives from nativedb
             //System.Console.WriteLine("Downloading latest natives from AltV...");
             //NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
             //Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
+            string nativeDbFilePath =
+                Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
+            string fileIndent = null;
+            bool generateHeader = true;
+            List<KeyValuePair<string, string>> arguments = new List<KeyValuePair<string, string>>();
+            for (var i = 0; i < args.Length; i++)
+            {
+                string key = args[i], keyNext = i + 1 < args.Length ? args[i + 1] : null;
+                if (!key.StartsWith("--")) continue;
+                if (keyNext != null && !keyNext.StartsWith("--"))
+                {
+                    arguments.Add(new KeyValuePair<string, string>(key, keyNext));
+                }
+                else
+                {
+                    arguments.Add(new KeyValuePair<string, string>(key, bool.TrueString));
+                }
+            }
+
+            foreach (var (key, val) in arguments)
+            {
+                switch (key)
+                {
+                    case "--disableHeader":
+                        generateHeader = false;
+                        break;
+                    case "--nativesPath" when val != null:
+                        nativeDbFilePath = Path.GetFullPath(val);
+                        System.Console.WriteLine(nativeDbFilePath);
+                        break;
+                    case "--outPath" when val != null:
+                        filePath = Path.GetFullPath(val);
+                        break;
+                    case "--outIndent" when val != null:
+                        fileIndent = val;
+                        break;
+                }
+            }
 
             // Read nativedb from file
             System.Console.WriteLine("Reading natives from file...");
-            string nativeDbFilePath = Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
             NativeDbFileReader nativeDbFileReader = new NativeDbFileReader(nativeDbFilePath);
             Models.NativeDb.NativeDb nativeDb = nativeDbFileReader.Read();
             if (nativeDb == null)
@@ -71,13 +109,12 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 
-            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition);
-            string typingFileContent = typeDefFileGenerator.Generate(true, new List<string>()
+            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, true, fileIndent);
+            string typingFileContent = typeDefFileGenerator.Generate(generateHeader, new List<string>()
             {
                 $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
             });
 
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
             if (!Directory.Exists(Path.GetDirectoryName(filePath)))
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));

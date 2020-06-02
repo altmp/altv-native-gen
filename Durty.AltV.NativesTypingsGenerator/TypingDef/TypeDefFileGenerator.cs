@@ -10,13 +10,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
     {
         private readonly TypeDef _typeDefFile;
         private readonly bool _generateDocumentation;
+        private readonly string _indent;
 
         public TypeDefFileGenerator(
             TypeDef typeDefFile,
-            bool generateDocumentation = true)
+            bool generateDocumentation = true,
+            string indent = "\t")
         {
             _typeDefFile = typeDefFile;
             _generateDocumentation = generateDocumentation;
+            _indent = indent;
         }
 
         public string Generate(bool generateHeader = true, List<string> customHeaderLines = null)
@@ -46,26 +49,27 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
         private StringBuilder GenerateInterface(TypeDefInterface typeDefInterface)
         {
-            StringBuilder result = new StringBuilder($"\tinterface {typeDefInterface.Name} {{\n");
-            result = typeDefInterface.Properties.Aggregate(result, (current, property) => current.Append($"\t\t{property.Name}: {property.Type};\n"));
-            result.Append("\t}");
+            StringBuilder result = new StringBuilder($"{_indent}interface {typeDefInterface.Name} {{\n");
+            result = typeDefInterface.Properties.Aggregate(result, (current, property) => current.Append($"{_indent}{_indent}{property.Name}: {property.Type};\n"));
+            result.Append($"{_indent}}}");
             return result;
         }
 
         private string GenerateType(TypeDefType typeDefType)
         {
-            return $"\ttype {typeDefType.Name} = {typeDefType.TypeDefinition};";
+            return $"{_indent}type {typeDefType.Name} = {typeDefType.TypeDefinition};";
         }
 
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
             StringBuilder result = new StringBuilder(string.Empty);
             result.Append($"declare module \"{typeDefModule.Name}\" {{\n");
-            result.Append(typeDefModule.Interfaces.Aggregate(new StringBuilder(), (current, typeDefInterface) => current.Append(GenerateInterface(typeDefInterface)).Append("\n")));
+            result.Append(typeDefModule.Interfaces.Aggregate(new StringBuilder(), (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n")));
             result.Append("\n");
-            result.Append(typeDefModule.Types.Aggregate(new StringBuilder(), (current, typeDefType) => current.Append(GenerateType(typeDefType)).Append("\n")));
+            result.Append(typeDefModule.Types.Aggregate(new StringBuilder(), (current, typeDef) => current.Append($"{GenerateType(typeDef)}\n")));
             result.Append("\n");
-            result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
+            result.Append(typeDefModule.Functions.Aggregate(result, (current, typeDef) => current.Append($"{GenerateFunction(typeDef)}\n")));
+            result.Length--;
             result.Append("}");
             return result;
         }
@@ -77,7 +81,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             {
                 result.Append(GenerateFunctionDocumentation(typeDefFunction));
             }
-            result.Append($"\texport function {typeDefFunction.Name}(");
+            result.Append($"{_indent}export function {typeDefFunction.Name}(");
             foreach (var parameter in typeDefFunction.Parameters)
             {
                 result.Append($"{parameter.Name}: {parameter.Type}");
@@ -86,7 +90,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     result.Append(", ");
                 }
             }
-            result.Append($"): {typeDefFunction.ReturnType.Name};");
+            result.Append($"): {typeDefFunction.ReturnType.Name};\n");
 
             return result;
         }
@@ -97,14 +101,14 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             if (string.IsNullOrEmpty(typeDefFunction.Description) && typeDefFunction.Parameters.All(p => string.IsNullOrEmpty(p.Description) && string.IsNullOrEmpty(typeDefFunction.ReturnType.Description)))
                 return new StringBuilder(string.Empty);
 
-            StringBuilder result = new StringBuilder($"\t/**\n");
+            StringBuilder result = new StringBuilder($"{_indent}/**\n");
             if (!string.IsNullOrEmpty(typeDefFunction.Description))
             {
                 string[] descriptionLines = typeDefFunction.Description.Split("\n");
                 foreach (string descriptionLine in descriptionLines)
                 {
                     string sanitizedDescriptionLine = descriptionLine.Replace("/*", string.Empty).Replace("*/", string.Empty).Trim();
-                    result.Append($"\t* {sanitizedDescriptionLine}\n");
+                    result.Append($"{_indent}* {sanitizedDescriptionLine}\n");
                 }
             }
             //Add @remarks in the future?
@@ -112,14 +116,14 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             {
                 if (!string.IsNullOrEmpty(parameter.Description))
                 {
-                    result.Append($"\t* @param {parameter.Name} {parameter.Description}\n");
+                    result.Append($"{_indent}* @param {parameter.Name} {parameter.Description}\n");
                 }
             }
             if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description))
             {
-                result.Append($"\t* @returns {typeDefFunction.ReturnType.Description}\n");
+                result.Append($"{_indent}* @returns {typeDefFunction.ReturnType.Description}\n");
             }
-            result.Append("\t*/\n");
+            result.Append($"{_indent}*/\n");
             return result;
         }
     }
