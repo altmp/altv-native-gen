@@ -15,11 +15,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         public TypeDefFileGenerator(
             TypeDef typeDefFile,
             bool generateDocumentation = true,
-            string indent = "\t")
+            string indent = null)
         {
             _typeDefFile = typeDefFile;
             _generateDocumentation = generateDocumentation;
-            _indent = indent;
+            _indent = indent ?? "\t";
         }
 
         public string Generate(bool generateHeader = true, List<string> customHeaderLines = null)
