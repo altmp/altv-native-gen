@@ -88,7 +88,6 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                         break;
                     case "--nativesPath" when val != null:
                         nativeDbFilePath = Path.GetFullPath(val);
-                        System.Console.WriteLine(nativeDbFilePath);
                         break;
                     case "--outPath" when val != null:
                         filePath = Path.GetFullPath(val);

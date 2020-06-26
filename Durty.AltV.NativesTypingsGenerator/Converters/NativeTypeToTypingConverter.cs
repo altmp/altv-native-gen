@@ -49,7 +49,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
 
         public string Convert(Native native, NativeType nativeType, bool isReference)
         {
-            string referenceType = isReference ? " | null | undefined" : "";
+            string referenceType = isReference ? " | null" : "";
             return nativeType switch
             {
                 NativeType.Any => "any" + referenceType,

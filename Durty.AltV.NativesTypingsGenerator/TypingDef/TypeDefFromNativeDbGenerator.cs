@@ -96,8 +96,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
             //TODO: Add possibility to override certain properties of retrieved native function (for example override param type etc.)
             List<TypeDefFunction> functions = new List<TypeDefFunction>();
-            foreach (Native native in nativeGroup.Values.Where(native => native.AltFunctionName != string.Empty && native.Hashes != null && native.Hashes.Count != 0))
+            foreach (Native native in nativeGroup.Values.Where(native =>
+                native.AltFunctionName != string.Empty && native.Hashes != null && native.Hashes.Count != 0))
             {
+                int lastVar = native.Parameters.ToList().FindLastIndex(elem => !elem.IsReference);
+
                 //Prepare for docs
                 List<string> nativeCommentLines = native.Comment.Split("\n").ToList();
 
@@ -133,11 +136,11 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 {
                     Name = native.AltFunctionName,
                     Description = string.Join("\n", nativeCommentLines),
-                    Parameters = native.Parameters.Select(p => new TypeDefFunctionParameter()
+                    Parameters = native.Parameters.Select((p, i) => new TypeDefFunctionParameter()
                     {
-                        Name = p.Name,
+                        Name = p.Name + (p.IsReference && i > lastVar ? "?" : ""),
                         NativeType = p.NativeParamType,
-                        Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType, p.IsReference),
+                        Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType, p.IsReference && i < lastVar),
                         Description = _tryResolveDocs ? GetPossibleParameterDescriptionFromComment(p.Name, nativeCommentLines) : string.Empty
                     }).ToList(),
                     ReturnType = new TypeDefFunctionReturnType()
