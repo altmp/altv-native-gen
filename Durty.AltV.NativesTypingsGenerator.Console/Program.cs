@@ -55,8 +55,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             //System.Console.WriteLine("Downloading latest natives from AltV...");
             //NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
             //Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
-            string nativeDbFilePath =
-                Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
+            string nativeDbFilePath = Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
             string fileIndent = null;
             bool generateHeader = true;

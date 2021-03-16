@@ -14,8 +14,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private readonly TypeDef _typeDefinition;
 
         public TypeDefFromNativeDbGenerator(
-            List<TypeDefInterface> interfaces, 
-            List<TypeDefType> types, 
+            List<TypeDefInterface> interfaces,
+            List<TypeDefType> types,
             string nativesModuleName,
             bool tryResolveDocs = true)
         {
@@ -101,24 +101,13 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             {
                 int lastVar = native.Parameters.ToList().FindLastIndex(elem => !elem.IsReference);
 
-                //Prepare for docs
+                // Prepare for docs
                 List<string> nativeCommentLines = native.Comment.Split("\n").ToList();
-
-                //Try resolving return type description
-                string foundReturnTypeDescription = string.Empty;
-                if (_tryResolveDocs)
-                {
-                    if (nativeCommentLines.Any(l => l.ToLower().Contains("returns")))
-                    {
-                        foundReturnTypeDescription = nativeCommentLines.FirstOrDefault(l => l.ToLower().Contains("returns"));
-                        nativeCommentLines.Remove(foundReturnTypeDescription);
-                    }
-                }
-
-                //Remove blank lines
+                
+                // Remove blank lines
                 nativeCommentLines.RemoveAll(l => l.Trim().Length == 0);
 
-                //Remove * at line beginnings
+                // Remove * at line beginnings
                 for (var i = 0; i < nativeCommentLines.Count; i++)
                 {
                     if (nativeCommentLines[i].StartsWith("* "))
@@ -127,61 +116,243 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     }
                 }
 
-                if (nativeCommentLines.Count > 10) //If native comment is really huge, cut & add NativeDB reference link to read
-                {
-                    nativeCommentLines = nativeCommentLines.Take(9).ToList();
-                    nativeCommentLines.Add($"See NativeDB for reference: http://natives.altv.mp/#/{native.Hashes.First().Value}");
-                }
+                List<string> commentLinesToRemove = new List<string>();
                 TypeDefFunction function = new TypeDefFunction()
                 {
                     Name = native.AltFunctionName,
-                    Description = string.Join("\n", nativeCommentLines),
                     Parameters = native.Parameters.Select((p, i) => new TypeDefFunctionParameter()
                     {
                         Name = p.Name + (p.IsReference && i > lastVar ? "?" : ""),
                         NativeType = p.NativeParamType,
                         Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType, p.IsReference && i < lastVar),
-                        Description = _tryResolveDocs ? GetPossibleParameterDescriptionFromComment(p.Name, nativeCommentLines) : string.Empty
+                        Description = _tryResolveDocs ? GetPossibleParameterDescriptionFromComment(i, p.Name, nativeCommentLines, ref commentLinesToRemove) : string.Empty
                     }).ToList(),
                     ReturnType = new TypeDefFunctionReturnType()
                     {
                         NativeType = native.ResultTypes,
                         Name = nativeReturnTypeToTypingConverter.Convert(native, native.ResultTypes),
-                        Description = foundReturnTypeDescription
                     }
                 };
+                
+                // Try resolving return type description
+                string foundReturnTypeDescription = string.Empty;
+                if (_tryResolveDocs)
+                {
+                    List<string> returnCommentKeywords = new List<string>()
+                    {
+                        "return",
+                        "returns"
+                    };
+                    var foundReturnTypeComment = nativeCommentLines.FirstOrDefault(l => returnCommentKeywords.Any(k => l.ToLower().Contains($" {k} ")));
+                    if (foundReturnTypeComment != null)
+                    {
+                        foundReturnTypeDescription = foundReturnTypeComment;
+                        commentLinesToRemove.Add(foundReturnTypeComment);
+                    }
+                }
+                function.ReturnType.Description = foundReturnTypeDescription;
+                
+                // Remove comment lines used in parameter descriptions
+                commentLinesToRemove.ForEach(l => nativeCommentLines.Remove(l));
+                
+                // Set native summary
+                if (nativeCommentLines.Count > 10) //If native comment is really huge, cut & add NativeDB reference link to read
+                {
+                    nativeCommentLines = nativeCommentLines.Take(9).ToList();
+                    nativeCommentLines.Add($"See NativeDB for reference: http://natives.altv.mp/#/{native.Hashes.First().Value}");
+                }
+                function.Description = string.Join("\n", nativeCommentLines);
+
                 functions.Add(function);
             }
 
             return functions;
         }
 
-        private string GetPossibleParameterDescriptionFromComment(string parameterName, List<string> commentLines)
+        //TODO: in the future include Levenshtein Distance algorythm for better parameter name matching https://stackoverflow.com/a/2344347
+        private string GetPossibleParameterDescriptionFromComment(int parameterIndex, string parameterName, List<string> commentLines, ref List<string> commentLinesToRemove)
         {
-            //TODO: in the future use Levenshtein Distance algorythm for better matching https://stackoverflow.com/a/2344347
-            string bestDescriptionMatch = string.Empty;
-            foreach (string commentLine in commentLines)
+            string descriptionMatch = string.Empty;
+            foreach (var similarParameterName in GetSimilarParameterNames(parameterIndex, parameterName))
             {
-                //Worst match, replace this if we find something else
-                if (commentLine.StartsWith($"{parameterName} ", StringComparison.OrdinalIgnoreCase))
+                foreach (string commentLine in commentLines)
                 {
-                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName} ", string.Empty);
+                    // Single parameter matching
+                    if (TryGetSingleParameterMatch(commentLine, similarParameterName, out descriptionMatch))
+                    {
+                        commentLinesToRemove.Add(commentLine);
+                        break;
+                    }
+
+                    // Parameter group matching
+                    if (TryGetGroupParameterMatch(commentLine, similarParameterName, out descriptionMatch))
+                    {
+                        commentLinesToRemove.Add(commentLine);
+                        break;
+                    }
+
+                    // Parameter index matching
+                    if (TryGetSingleParameterMatch(commentLine, $"p{parameterIndex}", out descriptionMatch))
+                    {
+                        commentLinesToRemove.Add(commentLine);
+                        break;
+                    }
                 }
-                if (commentLine.Contains($"{parameterName}: ", StringComparison.OrdinalIgnoreCase))
+
+                if (!string.IsNullOrEmpty(descriptionMatch))
                 {
-                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName}: ", string.Empty);
-                }
-                else if (commentLine.Contains($"{parameterName} = ", StringComparison.OrdinalIgnoreCase))
-                {
-                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName} = ", string.Empty);
-                }
-                else if (commentLine.Contains($"{parameterName} - ", StringComparison.OrdinalIgnoreCase))
-                {
-                    bestDescriptionMatch = commentLine.ReplaceFirst($"{parameterName} - ", string.Empty);
+                    break;
                 }
             }
+            return descriptionMatch;
+        }
 
-            return bestDescriptionMatch;
+        private static bool TryGetGroupParameterMatch(string commentLine, string similarParameterName, out string descriptionMatch)
+        {
+            descriptionMatch = null;
+            List<string> groupParameterMatchings = new List<string>()
+            {
+                ",",
+                "/"
+            };
+            List<char> possibleCommentSeperators = new List<char>()
+            {
+                ':',
+                '=',
+                '-'
+            };
+
+            foreach (var groupParameterMatching in groupParameterMatchings)
+            {
+                if (!commentLine.Contains($"{similarParameterName}{groupParameterMatching}", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                char? firstOccuredSeperator = null;
+                int firstOccuredSeperatorIndex = int.MaxValue;
+                foreach (var possibleCommentSeperator in possibleCommentSeperators)
+                {
+                    var commentSeperatorIndex = commentLine.IndexOf(possibleCommentSeperator);
+                    if (commentSeperatorIndex != -1 && (firstOccuredSeperator == null || commentSeperatorIndex < firstOccuredSeperatorIndex))
+                    {
+                        firstOccuredSeperator = possibleCommentSeperator;
+                        firstOccuredSeperatorIndex = commentSeperatorIndex;
+                    }
+                }
+
+                if (firstOccuredSeperator == null) 
+                    continue;
+
+                var descriptionParts = commentLine.Split(firstOccuredSeperator.Value);
+                if (descriptionParts.Length > 1)
+                {
+                    descriptionMatch = descriptionParts[1].Trim();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool TryGetSingleParameterMatch(string commentLine, string similarParameterName, out string descriptionMatch)
+        {
+            descriptionMatch = null;
+            List<Tuple<string, string>> singleParameterMatchings = new List<Tuple<string, string>>() // Prefix, Suffix
+            {
+                new Tuple<string, string>("", " "),
+                new Tuple<string, string>("", ":"),
+                new Tuple<string, string>("-", ":"),
+                new Tuple<string, string>("", " = "),
+                new Tuple<string, string>("", " - "),
+                new Tuple<string, string>("", " ,"),
+                new Tuple<string, string>("", "= "),
+            };
+            foreach (var singleParameterMatching in singleParameterMatchings)
+            {
+                if (!commentLine.StartsWith($"{singleParameterMatching.Item1}{similarParameterName}{singleParameterMatching.Item2}", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                descriptionMatch = commentLine.ReplaceFirst($"{singleParameterMatching.Item1}{similarParameterName}{singleParameterMatching.Item2}", string.Empty, StringComparison.OrdinalIgnoreCase).Trim();
+                return true;
+            }
+            return false;
+        }
+
+        private List<string> GetSimilarParameterNames(int parameterIndex, string parameterName)
+        {
+            var similarParameterNameGroups = new List<List<string>>()
+            {
+                new List<string>()
+                {
+                    "r",
+                    "red",
+                    "colorr",
+                    "color"
+                },
+                new List<string>()
+                {
+                    "g",
+                    "green",
+                    "colorg",
+                    "color"
+                },
+                new List<string>()
+                {
+                    "b",
+                    "blue",
+                    "colorb",
+                    "color"
+                },
+                new List<string>()
+                {
+                    "a",
+                    "alpha"
+                },
+                new List<string>()
+                {
+                    $"x{parameterIndex}",
+                    "x",
+                },
+                new List<string>()
+                {
+                    $"y{parameterIndex}",
+                    "y",
+                },
+                new List<string>()
+                {
+                    $"z{parameterIndex}",
+                    "z",
+                },
+                new List<string>()
+                {
+                    "pos",
+                    $"pos{parameterIndex}",
+                    "posx",
+                    $"posx{parameterIndex}",
+                    "posy",
+                    $"posy{parameterIndex}",
+                    "posz",
+                    $"posz{parameterIndex}",
+                },
+                new List<string>()
+                {
+                    "dir",
+                    $"dir{parameterIndex}",
+                    "dirx",
+                    $"dirx{parameterIndex}",
+                    "diry",
+                    $"diry{parameterIndex}",
+                    "dirz",
+                    $"dirz{parameterIndex}",
+                }
+            };
+            foreach (var similarParameterNameGroup in similarParameterNameGroups
+                .Where(similarParameterNameGroup => similarParameterNameGroup.Contains(parameterName.ToLower())))
+            {
+                return similarParameterNameGroup;
+            }
+            return new List<string>()
+            {
+                parameterName
+            };
         }
     }
 }
