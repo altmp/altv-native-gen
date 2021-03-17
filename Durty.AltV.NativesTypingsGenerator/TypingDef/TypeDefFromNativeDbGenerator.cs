@@ -107,13 +107,14 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 // Remove blank lines
                 nativeCommentLines.RemoveAll(l => l.Trim().Length == 0);
 
-                // Remove * at line beginnings
+                // Remove * at line beginnings and /* + */ comments
                 for (var i = 0; i < nativeCommentLines.Count; i++)
                 {
                     if (nativeCommentLines[i].StartsWith("* "))
                     {
                         nativeCommentLines[i] = nativeCommentLines[i].ReplaceFirst("* ", string.Empty);
                     }
+                    nativeCommentLines[i] = nativeCommentLines[i].Replace("/*", "").Replace("*/", "");
                 }
 
                 List<string> commentLinesToRemove = new List<string>();
