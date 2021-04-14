@@ -9,45 +9,6 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
     class Program
     {
         private const string AltVNativeDbJsonSourceUrl = "https://natives.altv.mp/natives";
-        private static readonly List<TypeDefInterface> Interfaces = new List<TypeDefInterface>()
-        {
-            new TypeDefInterface()
-            {
-                Name = "Vector3",
-                Properties = new List<TypeDefInterfaceProperty>()
-                {
-                    new TypeDefInterfaceProperty()
-                    {
-                        Name = "x",
-                        Type = "number"
-                    },
-                    new TypeDefInterfaceProperty()
-                    {
-                        Name = "y",
-                        Type = "number"
-                    },
-                    new TypeDefInterfaceProperty()
-                    {
-                        Name = "z",
-                        Type = "number"
-                    }
-                }
-            }
-        };
-
-        private static readonly List<TypeDefType> Types = new List<TypeDefType>()
-        {
-            new TypeDefType()
-            {
-                Name = "MemoryBuffer",
-                TypeDefinition = "object"
-            },
-            new TypeDefType()
-            {
-                Name = "vectorPtr",
-                TypeDefinition = "Vector3"
-            }
-        };
 
         static void Main(string[] args)
         {
@@ -107,7 +68,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 return;
             }
 
-            TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator(Interfaces, Types, "natives");
+            TypeDefFromNativeDbGenerator typeDefGenerator = new TypeDefFromNativeDbGenerator("natives");
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 

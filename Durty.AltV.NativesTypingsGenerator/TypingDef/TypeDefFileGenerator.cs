@@ -64,11 +64,13 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         {
             StringBuilder result = new StringBuilder();
             result.Append($"declare module \"{typeDefModule.Name}\" {{\n");
-            typeDefModule.Interfaces.Aggregate(result, (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n"));
+            result.Append($"{_indent}import {{ Vector3 }} from \"alt-client\";");
             result.Append("\n");
-            typeDefModule.Types.Aggregate(result, (current, typeDef) => current.Append($"{GenerateType(typeDef)}\n"));
+            typeDefModule.Interfaces?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n"));
             result.Append("\n");
-            typeDefModule.Functions.Aggregate(result, (current, typeDef) => current.Append($"{GenerateFunction(typeDef)}\n"));
+            typeDefModule.Types?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateType(typeDef)}\n"));
+            result.Append("\n");
+            typeDefModule.Functions?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateFunction(typeDef)}\n"));
             result.Length--;
             result.Append("}");
             return result;

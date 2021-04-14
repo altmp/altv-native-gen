@@ -14,12 +14,12 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private readonly TypeDef _typeDefinition;
 
         public TypeDefFromNativeDbGenerator(
-            List<TypeDefInterface> interfaces,
-            List<TypeDefType> types,
             string nativesModuleName,
-            bool tryResolveDocs = true)
+            List<TypeDefInterface> interfaces = null,
+            List<TypeDefType> types = null,
+            bool resolveDocs = true)
         {
-            _tryResolveDocs = tryResolveDocs;
+            _tryResolveDocs = resolveDocs;
             _typeDefinition = new TypeDef()
             {
                 Modules = new List<TypeDefModule>()
