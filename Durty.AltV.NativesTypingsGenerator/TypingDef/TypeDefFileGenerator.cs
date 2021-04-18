@@ -64,7 +64,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         {
             StringBuilder result = new StringBuilder();
             result.Append($"declare module \"{typeDefModule.Name}\" {{\n");
-            result.Append($"{_indent}import {{ Vector3 }} from \"alt-client\";");
+            result.Append($"{_indent}import {{ Vector3, Entity, Vehicle, Player }} from \"alt-client\";");
             result.Append("\n");
             typeDefModule.Interfaces?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n"));
             result.Append("\n");
