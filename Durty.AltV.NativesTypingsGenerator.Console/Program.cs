@@ -17,9 +17,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             //NativeDbDownloader nativeDbDownloader = new NativeDbDownloader(AltVNativeDbJsonSourceUrl);
             //Models.NativeDb.NativeDb nativeDb = nativeDbDownloader.DownloadLatest();
             string nativeDbFilePath = Path.Combine(Directory.GetCurrentDirectory(), "resources", "natives", "natives.json");
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "native-types", "natives.d.ts");
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "index.d.ts");
             string fileIndent = null;
-            bool generateHeader = true;
             bool generateDocs = true;
             List<KeyValuePair<string, string>> arguments = new List<KeyValuePair<string, string>>();
             for (var i = 0; i < args.Length; i++)
@@ -40,9 +39,6 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             {
                 switch (key)
                 {
-                    case "--disableHeader":
-                        generateHeader = false;
-                        break;
                     case "--disableDocs":
                         generateDocs = false;
                         break;
@@ -73,10 +69,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 
             TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, generateDocs, fileIndent);
-            string typingFileContent = typeDefFileGenerator.Generate(generateHeader, new List<string>()
-            {
-                $" Natives retrieved from alt:V / NativeDB at http://natives.altv.mp/#/ - VersionHash: {nativeDb.VersionHash}"
-            });
+            typeDefFileGenerator.Generate(out string typingFileContent);
 
             if (!Directory.Exists(Path.GetDirectoryName(filePath)))
             {
@@ -86,8 +79,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
 
             System.Console.WriteLine($"Done writing natives typings to file: {filePath}");
 
-            TypeDefCSharpFileGenerator typeDefCSharpFileGenerator = new TypeDefCSharpFileGenerator(typingDefinition);
-            string csharpTypingFileContent = typeDefCSharpFileGenerator.Generate();
+            // TypeDefCSharpFileGenerator typeDefCSharpFileGenerator = new TypeDefCSharpFileGenerator(typingDefinition);
+            // string csharpTypingFileContent = typeDefCSharpFileGenerator.Generate();
         }
     }
 }
