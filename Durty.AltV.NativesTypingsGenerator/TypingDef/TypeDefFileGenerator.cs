@@ -52,7 +52,12 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
             StringBuilder result = new StringBuilder();
-            result.Append($"declare module \"{typeDefModule.Name}\" {{\n");
+            result.Append("/// <reference types=\"@altv/types-shared\"/>");
+            result.Append("\n");
+            result.Append("/**\n * @module natives\n */");
+            result.Append("\n");
+            result.Append($"declare module \"{typeDefModule.Name}\" {{");
+            result.Append("\n");
             result.Append($"{_indent}import {{ Vector3, Entity, Vehicle, Player }} from \"alt-client\";");
             result.Append("\n");
             typeDefModule.Interfaces?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n"));
