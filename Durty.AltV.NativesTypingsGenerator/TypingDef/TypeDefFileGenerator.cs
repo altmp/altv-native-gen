@@ -52,6 +52,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
             StringBuilder result = new StringBuilder();
+            result.Append("/// <reference types=\"@altv/types-shared\"/>");
+            result.Append("\n");
             result.Append("/**\n * @module natives\n */");
             result.Append("\n");
             result.Append($"declare module \"{typeDefModule.Name}\" {{");
