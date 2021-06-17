@@ -12,13 +12,13 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
 
             if (nativeReturnTypes.Count == 1)
             {
-                return nativeTypeToTypingConverter.Convert(native, nativeReturnTypes.First(), false);
+                return nativeTypeToTypingConverter.Convert(native, nativeReturnTypes.First(), false, true);
             }
 
             string returnTypeForTyping = "[";
             for (int i = 0; i < nativeReturnTypes.Count; i++)
             {
-                returnTypeForTyping += nativeTypeToTypingConverter.Convert(native, nativeReturnTypes[i], false);
+                returnTypeForTyping += nativeTypeToTypingConverter.Convert(native, nativeReturnTypes[i], false, true);
                 if (i != nativeReturnTypes.Count - 1)
                 {
                     returnTypeForTyping += ", ";

@@ -47,7 +47,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
            }
          */
 
-        public string Convert(Native native, NativeType nativeType, bool isReference)
+        public string Convert(Native native, NativeType nativeType, bool isReference = false, bool isReturnType = false)
         {
             string referenceType = isReference ? " | null" : "";
             return nativeType switch
@@ -64,14 +64,14 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.Interior => "number" + referenceType,
                 NativeType.Object => "number" + referenceType,
                 NativeType.Hash => "number" + referenceType,
-                NativeType.Entity => "Entity | number" + referenceType,
-                NativeType.Ped => "Player | number" + referenceType,
-                NativeType.Vehicle => "Vehicle | number" + referenceType,
+                NativeType.Entity => (isReturnType ? "Entity | " : "") + "number" + referenceType,
+                NativeType.Ped => (isReturnType ? "Player | " : "") + "number" + referenceType,
+                NativeType.Vehicle => (isReturnType ? "Vehicle | " : "") + "number" + referenceType,
                 NativeType.Cam => "number" + referenceType,
                 NativeType.FireId => "number" + referenceType,
                 NativeType.Blip => "number" + referenceType,
                 NativeType.Pickup => "number" + referenceType,
-                NativeType.Player => "Player | number" + referenceType,
+                NativeType.Player => (isReturnType ? "Player | " : "") + "number" + referenceType,
                 NativeType.CarGenerator => "number" + referenceType,
                 NativeType.Group => "number" + referenceType,
                 NativeType.Train => "number" + referenceType,
