@@ -49,8 +49,8 @@ namespace AltV.Natives.ChangelogGenerator.Console
                 return;
             }
             
-            WriteNativeDeprecationChangelog(oldNativeDb, Path.Combine(Directory.GetCurrentDirectory(), "previouslyDeprecatedNatives.txt"));
-            WriteNativeDeprecationChangelog(newNativeDb, Path.Combine(Directory.GetCurrentDirectory(), "newDeprecatedNatives.txt"));
+            WriteNativeDeprecationChangelog(oldNativeDb, Path.Combine(Directory.GetCurrentDirectory(), "previouslyDeprecatedNativeNames.txt"));
+            WriteNativeDeprecationChangelog(newNativeDb, Path.Combine(Directory.GetCurrentDirectory(), "newDeprecatedNativeNames.txt"));
             WriteNewNativesChangelog(newNativeDb, 2372, Path.Combine(Directory.GetCurrentDirectory(), "newNatives.txt"));
             System.Console.WriteLine("Finished generating changelog files.");
         }
