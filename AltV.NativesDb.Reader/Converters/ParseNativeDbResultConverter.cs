@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Durty.AltV.NativesTypingsGenerator.Extensions;
-using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
+using AltV.NativesDb.Reader.Extensions;
+using AltV.NativesDb.Reader.Models.NativeDb;
 using Newtonsoft.Json;
 
-namespace Durty.AltV.NativesTypingsGenerator.Converters
+namespace AltV.NativesDb.Reader.Converters
 {
     internal class ParseNativeDbResultConverter : JsonConverter
     {

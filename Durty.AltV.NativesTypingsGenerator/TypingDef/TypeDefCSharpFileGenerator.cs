@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AltV.NativesDb.Reader.Extensions;
 using Durty.AltV.NativesTypingsGenerator.Converters;
-using Durty.AltV.NativesTypingsGenerator.Extensions;
-using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
 namespace Durty.AltV.NativesTypingsGenerator.TypingDef

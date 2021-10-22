@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Durty.AltV.NativesTypingsGenerator.Converters
+namespace AltV.NativesDb.Reader.Converters
 {
     internal class ParseStringConverter : JsonConverter
     {

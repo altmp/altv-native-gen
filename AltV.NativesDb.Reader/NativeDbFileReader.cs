@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using Durty.AltV.NativesTypingsGenerator.Extensions;
+using AltV.NativesDb.Reader.Extensions;
 using Newtonsoft.Json;
 
-namespace Durty.AltV.NativesTypingsGenerator.NativeDb
+namespace AltV.NativesDb.Reader
 {
     public class NativeDbFileReader
     {

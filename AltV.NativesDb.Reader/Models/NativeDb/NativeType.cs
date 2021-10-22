@@ -1,4 +1,4 @@
-﻿namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
+﻿namespace AltV.NativesDb.Reader.Models.NativeDb
 {
     public enum NativeType
     {

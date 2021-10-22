@@ -1,4 +1,4 @@
-﻿using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
+﻿using AltV.NativesDb.Reader.Models.NativeDb;
 
 namespace Durty.AltV.NativesTypingsGenerator.Models.Typing
 {

@@ -1,8 +1,8 @@
 ﻿using System.Net;
-using Durty.AltV.NativesTypingsGenerator.Extensions;
+using AltV.NativesDb.Reader.Extensions;
 using Newtonsoft.Json;
 
-namespace Durty.AltV.NativesTypingsGenerator.NativeDb
+namespace AltV.NativesDb.Reader
 {
     public class NativeDbDownloader
     {

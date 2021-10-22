@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AltV.NativesDb.Reader.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Converters;
 using Durty.AltV.NativesTypingsGenerator.Extensions;
-using Durty.AltV.NativesTypingsGenerator.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
 namespace Durty.AltV.NativesTypingsGenerator.TypingDef
@@ -40,7 +40,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             return _typeDefinition;
         }
 
-        public void AddFunctionsFromNativeDb(Models.NativeDb.NativeDb nativeDb)
+        public void AddFunctionsFromNativeDb(NativeDb nativeDb)
         {
             TypeDefModule nativesModule = _typeDefinition.Modules.First(m => m.Name == "natives");
 

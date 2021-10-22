@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using AltV.NativesDb.Reader;
+using AltV.NativesDb.Reader.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
-using Durty.AltV.NativesTypingsGenerator.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.TypingDef;
 
 namespace Durty.AltV.NativesTypingsGenerator.Console
@@ -57,7 +58,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             // Read nativedb from file
             System.Console.WriteLine("Reading natives from file...");
             NativeDbFileReader nativeDbFileReader = new NativeDbFileReader(nativeDbFilePath);
-            Models.NativeDb.NativeDb nativeDb = nativeDbFileReader.Read();
+            NativeDb nativeDb = nativeDbFileReader.Read();
             if (nativeDb == null)
             {
                 System.Console.WriteLine("Failed to read natives from file. File doesnt exist or is invalid.");

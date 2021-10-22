@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Durty.AltV.NativesTypingsGenerator.Models.NativeDb
+namespace AltV.NativesDb.Reader.Models.NativeDb
 {
     public class NativeDb
     {
