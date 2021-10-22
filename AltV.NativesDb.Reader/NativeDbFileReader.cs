@@ -27,7 +27,7 @@ namespace AltV.NativesDb.Reader
                 nativeDb.VersionHash = nativesHash;
                 return nativeDb;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return null;
             }

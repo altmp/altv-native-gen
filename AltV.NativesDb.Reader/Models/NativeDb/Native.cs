@@ -37,5 +37,8 @@ namespace AltV.NativesDb.Reader.Models.NativeDb
 
         [JsonProperty("unused", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Unused { get; set; }
+
+        [JsonProperty("oldNames")]
+        public List<string> OldNames { get; set; }
     }
 }

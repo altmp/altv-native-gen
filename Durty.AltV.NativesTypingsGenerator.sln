@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Durty.AltV.NativesTypingsGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltV.NativesDb.Reader", "AltV.NativesDb.Reader\AltV.NativesDb.Reader.csproj", "{A3FD12AB-6349-46F1-A7CD-EF1F65613C82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltV.Natives.ChangelogGenerator.Console", "AltV.Natives.ChangelogGenerator.Console\AltV.Natives.ChangelogGenerator.Console.csproj", "{39BBD8ED-FF3B-482E-AA59-82A9D72B9087}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A3FD12AB-6349-46F1-A7CD-EF1F65613C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3FD12AB-6349-46F1-A7CD-EF1F65613C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3FD12AB-6349-46F1-A7CD-EF1F65613C82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39BBD8ED-FF3B-482E-AA59-82A9D72B9087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39BBD8ED-FF3B-482E-AA59-82A9D72B9087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39BBD8ED-FF3B-482E-AA59-82A9D72B9087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39BBD8ED-FF3B-482E-AA59-82A9D72B9087}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

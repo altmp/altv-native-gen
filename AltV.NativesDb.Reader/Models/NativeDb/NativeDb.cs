@@ -135,5 +135,57 @@ namespace AltV.NativesDb.Reader.Models.NativeDb
 
         [JsonProperty("ZONE")]
         public Dictionary<string, Native> Zone { get; set; }
+
+        public List<Native> AllNatives
+        {
+            get
+            {
+                List<Native> natives = new List<Native>();
+                natives.AddRange(System.Values);
+                natives.AddRange(App.Values);
+                natives.AddRange(Graphics.Values);
+                natives.AddRange(Audio.Values);
+                natives.AddRange(Brain.Values);
+                natives.AddRange(Cam.Values);
+                natives.AddRange(Clock.Values);
+                natives.AddRange(Cutscene.Values);
+                natives.AddRange(Datafile.Values);
+                natives.AddRange(Decorator.Values);
+                natives.AddRange(Dlc.Values);
+                natives.AddRange(Entity.Values);
+                natives.AddRange(Event.Values);
+                natives.AddRange(Files.Values);
+                natives.AddRange(Fire.Values);
+                natives.AddRange(Hud.Values);
+                natives.AddRange(Interior.Values);
+                natives.AddRange(Itemset.Values);
+                natives.AddRange(Loadingscreen.Values);
+                natives.AddRange(Localization.Values);
+                natives.AddRange(Misc.Values);
+                natives.AddRange(Mobile.Values);
+                natives.AddRange(Money.Values);
+                natives.AddRange(Netshopping.Values);
+                natives.AddRange(Network.Values);
+                natives.AddRange(Object.Values);
+                natives.AddRange(Pad.Values);
+                natives.AddRange(Pathfind.Values);
+                natives.AddRange(Ped.Values);
+                natives.AddRange(Physics.Values);
+                natives.AddRange(Player.Values);
+                natives.AddRange(Recording.Values);
+                natives.AddRange(Replay.Values);
+                natives.AddRange(Script.Values);
+                natives.AddRange(Shapetest.Values);
+                natives.AddRange(Socialclub.Values);
+                natives.AddRange(Stats.Values);
+                natives.AddRange(Streaming.Values);
+                natives.AddRange(Task.Values);
+                natives.AddRange(Vehicle.Values);
+                natives.AddRange(Water.Values);
+                natives.AddRange(Weapon.Values);
+                natives.AddRange(Zone.Values);
+                return natives;
+            }
+        }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AltV.Natives.ChangelogGenerator.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "\"H:\\DevProjects\\GIT_Projects\\Durty.AltV.NativesTypingsGenerator\\AltV.Natives.ChangelogGenerator.Console\\bin\\Debug\\net5.0\\Resources\\natives-old.json\" \"H:\\DevProjects\\GIT_Projects\\Durty.AltV.NativesTypingsGenerator\\AltV.Natives.ChangelogGenerator.Console\\bin\\Debug\\net5.0\\Resources\\natives-new.json\""
+    }
+  }
+}
