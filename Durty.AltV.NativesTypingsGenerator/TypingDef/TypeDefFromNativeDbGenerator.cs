@@ -80,8 +80,10 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     Name = native.AltFunctionName,
                     Parameters = native.Parameters.Select((p, i) => new TypeDefFunctionParameter()
                     {
-                        Name = p.Name + (native.Parameters.Length > 1 && p.IsReference && i > lastVar ? "?" : ""),
+                        Name = p.Name,
+                        IsReference = p.IsReference,
                         NativeType = p.NativeParamType,
+                        IsLastReference = i > lastVar,
                         Type = nativeTypeToTypingConverter.Convert(native, p.NativeParamType, native.Parameters.Length > 1 && p.IsReference && i < lastVar),
                         Description = _tryResolveDocs ? GetPossibleParameterDescriptionFromComment(i, p.Name, nativeCommentLines, ref commentLinesToRemove) : string.Empty
                     }).ToList(),

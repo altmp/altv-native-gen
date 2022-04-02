@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AltV.NativesDb.Reader.Extensions;
+using AltV.NativesDb.Reader.Models.NativeDb;
 using Durty.AltV.NativesTypingsGenerator.Converters;
 using Durty.AltV.NativesTypingsGenerator.Models.Typing;
 
@@ -49,24 +50,18 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         {
             StringBuilder result = new StringBuilder(string.Empty);
             result.Append($"using System.Numerics;\n");
-            result.Append($"using WebAssembly;\n");
-            result.Append($"using WebAssembly.Core;\n\n");
             result.Append($"namespace AltV.Net.Client\n{{\n");
-            result.Append($"\tpublic class NativeNatives\n\t{{\n");
-            result.Append($"\t\tprivate readonly JSObject native;\n\n");
+            result.Append($"\tpublic class Natives\n\t{{\n");
+            result.Append($"\t\tprivate IntPtr handle;\n");
             foreach (var typeDefFunction in typeDefModule.Functions)
             {
-                result.Append($"\t\tprivate Function {GetFixedTypeDefFunctionName(typeDefFunction.Name)};\n");
+                result.Append($"\t\tprivate {GetUnmanagedDelegateType(typeDefFunction)} {GetFixedTypeDefFunctionName(typeDefFunction.Name)};\n");
             }
             result.Append($"\n");
-            result.Append($"\t\tpublic NativeNatives(JSObject native)\n\t\t{{\n");
-            result.Append($"\t\t\tthis.native = native;\n");
+            result.Append($"\t\tpublic Natives(string dllName)\n\t\t{{\n");
+            result.Append($"\t\t\tconst DllImportSearchPath dllImportSearchPath = DllImportSearchPath.LegacyBehavior | DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.SafeDirectories | DllImportSearchPath.System32 | DllImportSearchPath.UserDirectories | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.UseDllDirectoryForDependencies;\n");
+            result.Append($"\t\t\thandle = NativeLibrary.Load(dllName, Assembly.GetExecutingAssembly(), dllImportSearchPath);\n");
             result.Append($"\t\t}}\n\n");
-            
-            result.Append("\t\tprivate static Vector3 JSObjectToVector3(object obj) {\n");
-            result.Append("\t\t\tvar jsObject = (JSObject) obj;\n");
-            result.Append("\t\t\treturn new Vector3((float) jsObject.GetObjectProperty(\"x\"), (float) jsObject.GetObjectProperty(\"y\"),(float) jsObject.GetObjectProperty(\"z\"));\n");
-            result.Append("\t\t}\n\n");
             
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
             result.Append("\t}\n");
@@ -76,7 +71,13 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
         private string GetFixedTypeDefFunctionName(string name)
         {
-            return name.StartsWith("_") ? "_" + name : name;
+            return name.StartsWith("_") ? name : "_" + name;
+        }
+        
+        private string GetUnmanagedDelegateType(TypeDefFunction function)
+        {
+            var converter = new NativeTypeToCSharpTypingConverter();
+            return $"delegate* unmanaged[Cdecl]<{string.Join("", function.Parameters.Select(p => $"{converter.Convert(null, p.NativeType, p.IsReference)}, "))}{converter.Convert(null, function.ReturnType.NativeType[0], false)}>";
         }
 
         private string GetFixedTypeDefParameterName(string name)
@@ -92,87 +93,32 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 result.Append(GenerateFunctionDocumentation(typeDefFunction));
             }
             var fixedTypeDefName = GetFixedTypeDefFunctionName(typeDefFunction.Name);
-            var cSharpReturnType = new NativeReturnTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType);
+            var cSharpReturnType = new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[0], false);
             result.Append($"\t\tpublic {cSharpReturnType} {typeDefFunction.Name.FirstCharToUpper()}(");
             foreach (var parameter in typeDefFunction.Parameters)
             {
-                result.Append($"{new NativeTypeToCSharpTypingConverter().Convert(null, parameter.NativeType, false)} {GetFixedTypeDefParameterName(parameter.Name)}");
+                result.Append($"{(parameter.IsReference ? "ref " : "")}{new NativeTypeToCSharpTypingConverter().Convert(null, parameter.NativeType, false)} {GetFixedTypeDefParameterName(parameter.Name)}");
                 if (typeDefFunction.Parameters.Last() != parameter)
                 {
                     result.Append(", ");
                 }
             }
             result.Append($")\n\t\t{{\n");
-            result.Append($"\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = (Function) native.GetObjectProperty(\"{typeDefFunction.Name}\");\n");
-            if (typeDefFunction.ReturnType.Name != "void")
-            {
-                if (typeDefFunction.ReturnType.Name == "any")
-                {
-                    result.Append($"\t\t\treturn {fixedTypeDefName}.Call(native");
-                    GenerateCallParameters(result, typeDefFunction);
-                }
-                else if (typeDefFunction.ReturnType.NativeType.Count > 1)
-                {
-                    result.Append($"\t\t\tvar results = (Array) {fixedTypeDefName}.Call(native");
-                    GenerateCallParameters(result, typeDefFunction);
-                    var returnTypeForTyping = "\t\t\treturn (";
-                    for (var i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
-                    {
-                        var tupleReturnType = typeDefFunction.ReturnType.NativeType[i];
-                        var cSharpTupleReturnType =
-                            new NativeTypeToCSharpTypingConverter().Convert(null, tupleReturnType, false);
-                        returnTypeForTyping += TransformReturnValue(cSharpTupleReturnType, $"results[{i}]");
-                        if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
-                        {
-                            returnTypeForTyping += ", ";
-                        }
-                    }
-                    returnTypeForTyping += ");\n";
-                    result.Append(returnTypeForTyping);
-                }
-                else
-                {
-                    var returnValue = new StringBuilder();
-                    returnValue.Append($"{fixedTypeDefName}.Call(native");
-                    GenerateCallParameters(returnValue, typeDefFunction, false);
-                    var transformedResult = TransformReturnValue(cSharpReturnType, returnValue.ToString());
-                    result.Append($"\t\t\treturn {transformedResult};\n");
-                }
-            }
-            else
-            {
-                result.Append($"\t\t\t{fixedTypeDefName}.Call(native");
-                GenerateCallParameters(result, typeDefFunction);
-            }
+            result.Append($"\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = ({GetUnmanagedDelegateType(typeDefFunction)}) NativeLibrary.GetExport(handle, \"Native_{typeDefFunction.Name}\");\n");
+            var hasReturn = typeDefFunction.ReturnType.NativeType[0] != NativeType.Void;
+            result.Append($"\t\t\t{(hasReturn ? "return " : "")}{fixedTypeDefName}(");
+            GenerateCallParameters(result, typeDefFunction);
             
             result.Append($"\t\t}}\n");
 
             return result;
         }
 
-        private string TransformReturnValue(string csharpReturnType, string returnValue)
-        {
-            if (csharpReturnType == "Vector3")
-            {
-                return $"JSObjectToVector3({returnValue})";
-            }
-
-            if (csharpReturnType == "object" || csharpReturnType == "void")
-            {
-                return returnValue;
-            }
-            return $"({csharpReturnType}) {returnValue}";
-        }
-
         private void GenerateCallParameters(StringBuilder result, TypeDefFunction typeDefFunction, bool closeFunction = true)
         {
             foreach (var parameter in typeDefFunction.Parameters)
             {
-                if (typeDefFunction.Parameters.First() == parameter)
-                {
-                    result.Append(", ");
-                }
-                result.Append($"{GetFixedTypeDefParameterName(parameter.Name)}");
+                result.Append($"{GetFixedTypeDefParameterName(parameter.Name)}{(parameter.IsReference ? "&" : "")}");
                 if (typeDefFunction.Parameters.Last() != parameter)
                 {
                     result.Append(", ");
@@ -210,29 +156,10 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     result.Append($"\t\t/// <param name=\"{GetFixedTypeDefParameterName(parameter.Name)}\">{parameter.Description}</param>\n");
                 }
             }
-            //For now build return doc with return type because we dont have strong typed return value for natives returning arrays currently..
-            //if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description))
-            //{
-            //    result.Append($"\t\t/// <returns>{typeDefFunction.ReturnType.Description}</returns>\n");
-            //}
-            string returnTypeForTyping = string.Empty;
-            if (typeDefFunction.ReturnType.NativeType.Count > 1)
+            
+            if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description))
             {
-                returnTypeForTyping = "Array<";
-                for (int i = 0; i < typeDefFunction.ReturnType.NativeType.Count; i++)
-                {
-                    returnTypeForTyping += new NativeTypeToCSharpTypingConverter().Convert(null, typeDefFunction.ReturnType.NativeType[i], false);
-                    if (i != typeDefFunction.ReturnType.NativeType.Count - 1)
-                    {
-                        returnTypeForTyping += ", ";
-                    }
-                }
-                returnTypeForTyping += ">";
-            }
-            if (!string.IsNullOrEmpty(typeDefFunction.ReturnType.Description) || !string.IsNullOrEmpty(returnTypeForTyping))
-            {
-                var returnDescription = $"{returnTypeForTyping} {typeDefFunction.ReturnType.Description}".Trim();
-                result.Append($"\t\t/// <returns>{returnDescription}</returns>\n");
+                result.Append($"\t\t/// <returns>{typeDefFunction.ReturnType.Description}</returns>\n");
             }
             return result;
         }

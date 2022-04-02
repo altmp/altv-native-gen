@@ -36,6 +36,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                 }
             }
 
+            var csharp = false;
+
             foreach (var (key, val) in arguments)
             {
                 switch (key)
@@ -51,6 +53,9 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
                         break;
                     case "--outIndent" when val != null:
                         fileIndent = val;
+                        break;
+                    case "--csharp":
+                        csharp = true;
                         break;
                 }
             }
@@ -69,19 +74,33 @@ namespace Durty.AltV.NativesTypingsGenerator.Console
             typeDefGenerator.AddFunctionsFromNativeDb(nativeDb);
             TypeDef typingDefinition = typeDefGenerator.GetTypingDefinition();
 
-            TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, generateDocs, fileIndent);
-            typeDefFileGenerator.Generate(out string typingFileContent);
-
-            if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+            if (!csharp)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                TypeDefFileGenerator typeDefFileGenerator = new TypeDefFileGenerator(typingDefinition, generateDocs, fileIndent);
+                typeDefFileGenerator.Generate(out string typingFileContent);
+
+                if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                }
+                File.WriteAllText(filePath, typingFileContent);
+
+                System.Console.WriteLine($"Done writing natives typings to file: {filePath}");
             }
-            File.WriteAllText(filePath, typingFileContent);
+            else
+            {
+                TypeDefCSharpFileGenerator typeDefCSharpFileGenerator = new TypeDefCSharpFileGenerator(typingDefinition);
+                string csharpTypingFileContent = typeDefCSharpFileGenerator.Generate();
+                
+                if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                }
+                File.WriteAllText(filePath, csharpTypingFileContent);
 
-            System.Console.WriteLine($"Done writing natives typings to file: {filePath}");
+                System.Console.WriteLine($"Done writing natives typings to file: {filePath}");
+            }
 
-            // TypeDefCSharpFileGenerator typeDefCSharpFileGenerator = new TypeDefCSharpFileGenerator(typingDefinition);
-            // string csharpTypingFileContent = typeDefCSharpFileGenerator.Generate();
         }
     }
 }

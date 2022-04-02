@@ -7,10 +7,10 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
     {
         public string Convert(Native native, NativeType nativeType, bool isReference)
         {
-            string referenceType = isReference ? "?" : "";
+            string referenceType = isReference ? "*" : "";
             return nativeType switch
             {
-                NativeType.Any => "object" + referenceType,
+                NativeType.Any => "int" + referenceType,
                 NativeType.Boolean => "bool" + referenceType,
                 NativeType.Float => "double" + referenceType,
                 NativeType.Int => "int" + referenceType,
