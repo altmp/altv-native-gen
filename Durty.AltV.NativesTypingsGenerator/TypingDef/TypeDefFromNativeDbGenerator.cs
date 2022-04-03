@@ -78,7 +78,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 TypeDefFunction function = new TypeDefFunction()
                 {
                     Name = native.AltFunctionName,
-                    LatestHash = native.Hashes[native.Hashes.Keys.Max(int.Parse).ToString()],
+                    BaseHash = native.Hashes.First().Value,
                     Parameters = native.Parameters.Select((p, i) => new TypeDefFunctionParameter()
                     {
                         Name = p.Name,

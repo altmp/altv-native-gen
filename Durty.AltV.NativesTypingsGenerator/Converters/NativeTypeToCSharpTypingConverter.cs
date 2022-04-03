@@ -5,44 +5,50 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
 {
     public class NativeTypeToCSharpTypingConverter
     {
-        public string Convert(Native native, NativeType nativeType, bool isReference)
+        public string Convert(Native native, NativeType nativeType, bool isReference, bool isUnmanagedDelegate = false)
         {
-            string referenceType = isReference ? "*" : "";
-            return nativeType switch
+            var value = nativeType switch
             {
-                NativeType.Any => "int" + referenceType,
-                NativeType.Boolean => "bool" + referenceType,
-                NativeType.Float => "double" + referenceType,
-                NativeType.Int => "int" + referenceType,
-                NativeType.String => "string" + referenceType,
-                NativeType.Vector3 => "Vector3" + referenceType,
-                NativeType.Void => "void" + referenceType,
-                NativeType.ScrHandle => "int" + referenceType,
-                NativeType.MemoryBuffer => "object" + referenceType,
-                NativeType.Interior => "int" + referenceType,
-                NativeType.Object => "int" + referenceType,
-                NativeType.Hash => "int" + referenceType,
-                NativeType.Entity => "int" + referenceType,
-                NativeType.Ped => "int" + referenceType,
-                NativeType.Vehicle => "int" + referenceType,
-                NativeType.Cam => "int" + referenceType,
-                NativeType.FireId => "int" + referenceType,
-                NativeType.Blip => "int" + referenceType,
-                NativeType.Pickup => "int" + referenceType,
-                NativeType.Player => "int" + referenceType,
-                NativeType.CarGenerator => "int" + referenceType,
-                NativeType.Group => "int" + referenceType,
-                NativeType.Train => "int" + referenceType,
-                NativeType.Weapon => "int" + referenceType,
-                NativeType.Texture => "int" + referenceType,
-                NativeType.TextureDict => "int" + referenceType,
-                NativeType.CoverPoint => "int" + referenceType,
-                NativeType.Camera => "int" + referenceType,
-                NativeType.TaskSequence => "int" + referenceType,
-                NativeType.ColourIndex => "int" + referenceType,
-                NativeType.Sphere => "int" + referenceType,
+                NativeType.Any => "int",
+                NativeType.Boolean => "bool",
+                NativeType.Float => "float",
+                NativeType.Int => "int",
+                NativeType.String => isUnmanagedDelegate ? "nint" : "string",
+                NativeType.Vector3 => "Vector3",
+                NativeType.Void => "void",
+                NativeType.ScrHandle => "int",
+                NativeType.MemoryBuffer => "object",
+                NativeType.Interior => "int",
+                NativeType.Object => "int",
+                NativeType.Hash => "int",
+                NativeType.Entity => "int",
+                NativeType.Ped => "int",
+                NativeType.Vehicle => "int",
+                NativeType.Cam => "int",
+                NativeType.FireId => "int",
+                NativeType.Blip => "int",
+                NativeType.Pickup => "int",
+                NativeType.Player => "int",
+                NativeType.CarGenerator => "int",
+                NativeType.Group => "int",
+                NativeType.Train => "int",
+                NativeType.Weapon => "int",
+                NativeType.Texture => "int",
+                NativeType.TextureDict => "int",
+                NativeType.CoverPoint => "int",
+                NativeType.Camera => "int",
+                NativeType.TaskSequence => "int",
+                NativeType.ColourIndex => "int",
+                NativeType.Sphere => "int",
                 _ => throw new ArgumentOutOfRangeException(nameof(nativeType), nativeType, null)
             };
+            
+            if (isReference)
+                if (isUnmanagedDelegate)
+                    value = value + "*";
+                else value = "ref " + value;
+
+            return value;
         }
     }
 }

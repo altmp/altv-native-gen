@@ -49,9 +49,12 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private StringBuilder GenerateModule(TypeDefModule typeDefModule)
         {
             StringBuilder result = new StringBuilder(string.Empty);
+            result.Append($"#include \"natives.h\"\n");
+            result.Append($"#include \"../../c-api/data/types.h\"\n");
+            result.Append($"#include \"Log.h\"\n\n");
             result.Append($"alt::Ref<alt::INative::Context> ctx;\n\n");
-            result.Append($"void InitNatives(alt::ICore* core) {{\n");
-            result.Append($"\tctx = core->CreateNativesContext();\n");
+            result.Append($"void InitNatives() {{\n");
+            result.Append($"\tctx = alt::ICore::Instance().CreateNativesContext();\n");
             result.Append($"}}\n\n");
             
             foreach (var typeDefFunction in typeDefModule.Functions)
@@ -65,11 +68,6 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
         private StringBuilder GenerateFunction(TypeDefFunction typeDefFunction)
         {
             StringBuilder result = new StringBuilder(string.Empty);
-            if (string.IsNullOrWhiteSpace(typeDefFunction.LatestHash))
-            {
-                Console.WriteLine("Warning: Function without hash: " + typeDefFunction.Name);
-                return result;
-            }
             StringBuilder resultEnd = new StringBuilder(string.Empty);
 
             var converter = new NativeTypeToCSharpCApiTypingConverter();
@@ -84,22 +82,27 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             }
             
             result.Append($") {{\n");
-            result.Append($"\tstatic auto native = alt::ICore::Instance().GetNativeByHash({typeDefFunction.LatestHash});\n");
+            result.Append($"\tstatic auto native = alt::ICore::Instance().GetNativeByHash({typeDefFunction.BaseHash});\n");
             result.Append($"\tctx->Reset();\n");
             foreach (var parameter in typeDefFunction.Parameters)
             {
-                if (parameter.NativeType != NativeType.Vector3)
-                    result.Append($"\tctx->Push(_{parameter.Name});\n");
-                else
+                if (parameter.NativeType == NativeType.Vector3)
                 {
                     result.Append($"\talt::INative::Vector3 converted_{parameter.Name} {{ _{parameter.Name}.x, 0, _{parameter.Name}.y, 0, _{parameter.Name}.z }};\n");
-                    result.Append($"\tctx->Push(converted_{parameter.Name});\n");
+                    result.Append($"\tctx->Push(&converted_{parameter.Name});\n");
                     resultEnd.Append($"\t_{parameter.Name}.x = converted_{parameter.Name}.x;\n");
                     resultEnd.Append($"\t_{parameter.Name}.y = converted_{parameter.Name}.y;\n");
                     resultEnd.Append($"\t_{parameter.Name}.z = converted_{parameter.Name}.z;\n");
                 }
+                else if (parameter.NativeType == NativeType.String && parameter.IsReference)
+                {
+                    result.Append($"\tctx->Push(_{parameter.Name});\n");
+                } 
+                else result.Append($"\tctx->Push(_{parameter.Name});\n");
             }
-            result.Append($"\tnative->Invoke(ctx);\n");
+            result.Append($"\tif (!native->Invoke(ctx)) {{\n");
+            result.Append($"\t\tLog::Error << \"Native {typeDefFunction.Name} call failed\" << Log::Endl;\n");
+            result.Append($"\t}}\n");
             
             var resultConverter = new NativeReturnTypeToCSharpCApiTypingConverter();
             if (typeDefFunction.ReturnType.NativeType[0] != NativeType.Void)
