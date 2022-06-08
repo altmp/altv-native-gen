@@ -21,7 +21,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.MemoryBuffer => "int32_t" + referenceType,
                 NativeType.Interior => "int32_t" + referenceType,
                 NativeType.Object => "int32_t" + referenceType,
-                NativeType.Hash => "int32_t" + referenceType,
+                NativeType.Hash => "uint32_t" + referenceType,
                 NativeType.Entity => "int32_t" + referenceType,
                 NativeType.Ped => "int32_t" + referenceType,
                 NativeType.Vehicle => "int32_t" + referenceType,

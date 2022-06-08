@@ -20,7 +20,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.MemoryBuffer => "object",
                 NativeType.Interior => "int",
                 NativeType.Object => "int",
-                NativeType.Hash => "int",
+                NativeType.Hash => "uint",
                 NativeType.Entity => "int",
                 NativeType.Ped => "int",
                 NativeType.Vehicle => "int",
