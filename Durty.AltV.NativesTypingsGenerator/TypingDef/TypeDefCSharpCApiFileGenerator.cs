@@ -120,6 +120,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                 {   
                     result.Append($"\tctx->Push(SaveString(_{parameter.Name}));\n");
                 }
+                else if(parameter.IsReference && parameter.NativeType == NativeType.Boolean)
+                {
+                    result.Append($"\tauto ptr_{parameter.Name} = (int32_t) _{parameter.Name};\n");   
+                    result.Append($"\tctx->Push(&ptr_{parameter.Name});\n");
+                    resultEnd.Append($"\t_{parameter.Name} = (bool) ptr_{parameter.Name};\n");
+                }
+                else if(parameter.NativeType == NativeType.Boolean)
+                {   
+                    result.Append($"\tctx->Push((int32_t) _{parameter.Name});\n");
+                }
                 else if(parameter.IsReference)
                 {
                     result.Append($"\tauto ptr_{parameter.Name} = _{parameter.Name};\n");   
