@@ -188,6 +188,12 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     afterCall.Append($"\t\t\t\tif (ref{argName} != ptr{argName}) freeString(ref{argName});\n");
                     afterCall.Append($"\t\t\t\tMarshal.FreeHGlobal(ptr{argName});\n");
                 }
+                else if (parameter.IsReference && parameter.NativeType == NativeType.Boolean)
+                {
+                    beforeCall.Append($"\t\t\t\tvar ref{argName} = (byte) ({argName} ? 1 : 0);\n");
+                    call.Append($"&ref{argName}");
+                    afterCall.Append($"\t\t\t\t{argName} = ref{argName} == 0 ? false : true;\n");
+                }
                 else if (parameter.IsReference)
                 {
                     beforeCall.Append($"\t\t\t\tvar ref{argName} = {argName};\n");
@@ -199,6 +205,10 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     beforeCall.Append($"\t\t\t\tvar ptr{argName} = MemoryUtils.StringToHGlobalUtf8({argName});\n");
                     call.Append($"ptr{argName}");
                     afterCall.Append($"\t\t\t\tMarshal.FreeHGlobal(ptr{argName});\n");
+                }
+                else if (parameter.NativeType == NativeType.Boolean)
+                {
+                    call.Append($"(byte) ({argName} ? 1 : 0)");
                 }
                 else
                 {
@@ -219,6 +229,10 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
                     afterCall.Append($"\t\t\t\tvar strResult = Marshal.PtrToStringUTF8(result);\n");
                     afterCall.Append($"\t\t\t\tfreeString(result);\n");
                     afterCall.Append($"\t\t\t\treturn strResult;\n");
+                }
+                else if (returnType == NativeType.Boolean)
+                {
+                    afterCall.Append($"\t\t\t\treturn result == 0 ? false : true;\n");
                 }
                 else
                 {

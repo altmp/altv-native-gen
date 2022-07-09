@@ -11,7 +11,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
             return nativeType switch
             {
                 NativeType.Any => "int32_t" + referenceType,
-                NativeType.Boolean => "bool" + referenceType,
+                NativeType.Boolean => "uint8_t" + referenceType,
                 NativeType.Float => "float" + referenceType,
                 NativeType.Int => "int32_t" + referenceType,
                 NativeType.String => "const char*" + referenceType,

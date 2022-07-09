@@ -10,7 +10,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
             var value = nativeType switch
             {
                 NativeType.Any => "int",
-                NativeType.Boolean => "bool",
+                NativeType.Boolean => isUnmanagedDelegate ? "byte" : "bool",
                 NativeType.Float => "float",
                 NativeType.Int => "int",
                 NativeType.String => isUnmanagedDelegate ? "nint" : "string",

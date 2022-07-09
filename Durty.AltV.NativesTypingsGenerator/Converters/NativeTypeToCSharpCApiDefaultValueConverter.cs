@@ -10,7 +10,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
             return nativeType switch
             {
                 NativeType.Any => "0",
-                NativeType.Boolean => "false",
+                NativeType.Boolean => "0",
                 NativeType.Float => "0.f",
                 NativeType.Int => "0",
                 NativeType.String => "nullptr",
