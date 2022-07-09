@@ -208,6 +208,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
 
             call.Append(");\n");
 
+            afterCall.Append("\t\t\t\tif (!success) throw new Exception(\"Native execution failed\");\n");
+
             if (returnType != NativeType.Void)
             {
                 prependCall.Append("var result = ");
