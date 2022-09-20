@@ -60,18 +60,16 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunctionDefinition(typeDefFunction, "\t\t")};\n"));
             result.Append("\t}\n\n");
             result.Append($"\tpublic unsafe class Natives : INatives\n\t{{\n");
-            result.Append($"\t\tprivate IntPtr handle;\n");
+            result.Append($"\t\tprivate Dictionary<ulong, IntPtr> funcTable;\n");
             result.Append($"\t\tprivate delegate* unmanaged[Cdecl]<nint, void> freeString;\n");
             foreach (var typeDefFunction in typeDefModule.Functions)
             {
                 result.Append($"\t\tprivate {GetUnmanagedDelegateType(typeDefFunction)} {GetFixedTypeDefFunctionName(typeDefFunction.Name)};\n");
             }
             result.Append($"\n");
-            result.Append($"\t\tpublic Natives(string dllName)\n\t\t{{\n");
-            result.Append(
-                $"\t\t\tconst DllImportSearchPath dllImportSearchPath = DllImportSearchPath.LegacyBehavior | DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.SafeDirectories | DllImportSearchPath.System32 | DllImportSearchPath.UserDirectories | DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.UseDllDirectoryForDependencies;\n");
-            result.Append($"\t\t\thandle = NativeLibrary.Load(dllName, Assembly.GetExecutingAssembly(), dllImportSearchPath);\n");
-            result.Append($"\t\t\tfreeString = (delegate* unmanaged[Cdecl]<nint, void>) NativeLibrary.GetExport(handle, \"FreeString\");\n");
+            result.Append($"\t\tpublic Natives(ILibrary library)\n\t\t{{\n");
+            result.Append($"\t\t\tfreeString = library.Shared.FreeString;\n");
+            result.Append($"\t\t\tfuncTable = Marshal.PtrToStructure<FunctionTable>(library.Client.GetNativeFuncTable()).GetTable();\n");
             result.Append($"\t\t}}\n\n");
 
             result = typeDefModule.Functions.Aggregate(result, (current, typeDefFunction) => current.Append($"{GenerateFunction(typeDefFunction)}\n"));
@@ -152,7 +150,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"{GenerateFunctionDefinition(typeDefFunction, "\t\tpublic ", true, false)}\n");
             result.Append($"\t\t{{\n");
             result.Append($"\t\t\tunsafe {{\n");
-            result.Append($"\t\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = ({GetUnmanagedDelegateType(typeDefFunction)}) NativeLibrary.GetExport(handle, \"Native_{typeDefFunction.Name}\");\n");
+            result.Append($"\t\t\t\tif ({fixedTypeDefName} == null) {fixedTypeDefName} = ({GetUnmanagedDelegateType(typeDefFunction)}) funcTable[{typeDefFunction.BaseHash}UL];\n");
             result.Append(GenerateInvoke(typeDefFunction));
             result.Append($"\t\t\t}}\n");
             result.Append($"\t\t}}\n");
