@@ -56,7 +56,7 @@ namespace Durty.AltV.NativesTypingsGenerator.Converters
                 NativeType.Boolean => "boolean" + referenceType,
                 NativeType.Float => "number" + referenceType,
                 NativeType.Int => "number" + referenceType,
-                NativeType.String => "string" + referenceType,
+                NativeType.String => isReturnType ? "string" : "string | null",
                 NativeType.Vector3 => "Vector3" + referenceType,
                 NativeType.Void => "void" + referenceType,
                 NativeType.ScrHandle => "number" + referenceType,
