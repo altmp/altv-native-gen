@@ -58,7 +58,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"#include <cstring>\n");
             result.Append($"#include <type_traits>\n");
             result.Append($"#include <stdlib.h>\n\n");
-            result.Append($"alt::Ref<alt::INative::Context> ctx;\n\n");
+            result.Append($"std::shared_ptr<alt::INative::Context> ctx;\n\n");
             result.Append($"void InitNatives() {{\n");
             result.Append($"\tctx = alt::ICore::Instance().CreateNativesContext();\n");
             result.Append($"}}\n\n");
