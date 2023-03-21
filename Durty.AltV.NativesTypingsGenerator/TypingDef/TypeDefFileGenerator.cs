@@ -60,6 +60,8 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append("\n");
             result.Append($"{_indent}import {{ Vector3, Entity, Vehicle, Player }} from \"alt-client\";");
             result.Append("\n");
+            result.Append($"{_indent}export function toggleStrictChecks(enable: boolean): void;");
+            result.Append("\n");
             typeDefModule.Interfaces?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateInterface(typeDef)}\n"));
             result.Append("\n");
             typeDefModule.Types?.Aggregate(result, (current, typeDef) => current.Append($"{GenerateType(typeDef)}\n"));
