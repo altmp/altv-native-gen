@@ -80,7 +80,7 @@ namespace Durty.AltV.NativesTypingsGenerator.TypingDef
             result.Append($"{_indent}export function {typeDefFunction.Name}(");
             foreach (var parameter in typeDefFunction.Parameters)
             {
-                result.Append($"{parameter.Name}: {parameter.Type}");
+                result.Append($"{parameter.Name}{(typeDefFunction.Parameters.Count > 1 && parameter.IsReference && parameter.IsLastReference ? "?" : "")}: {parameter.Type}");
                 if (typeDefFunction.Parameters.Last() != parameter)
                 {
                     result.Append(", ");

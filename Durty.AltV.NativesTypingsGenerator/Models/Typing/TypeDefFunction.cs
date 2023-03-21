@@ -9,6 +9,8 @@ namespace Durty.AltV.NativesTypingsGenerator.Models.Typing
     [DebuggerDisplay("{Name}(): {ReturnType};")]
     public class TypeDefFunction
     {
+        public string BaseHash { get; set; }
+        
         public string Name { get; set; }
 
         public string Description { get; set; }
